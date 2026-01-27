@@ -127,21 +127,25 @@ button{background:#d4a441;color:white;font-weight:bold;}
 
 <div id="home" class="screen">
   <h2>Ana Sayfa</h2>
+
+  <button onclick="openApp()">Uygulamayı Aç</button>
+
+  <br><br>
+
   <button onclick="logout()">Çıkış</button>
 </div>
 
 <script type="module">
+  // Login ekranını garanti aç
+  window.onload = () => {
+    document.getElementById("loginScreen").style.display = "flex";
+  };
 
-  // 🔐 ZATEN LİSANSLI MI?
-if (localStorage.getItem("licensed") === "true") {
-  window.location.replace("/app.html");
-}
-
-  // 🔥 Firebase SDK
+  // Firebase SDK
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
   import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
-  // 🔑 Firebase config (SENİN PANELDEN GELEN)
+  // 🔑 Firebase config (seninki)
   const firebaseConfig = {
     apiKey: "AIzaSyBNgFdfhoV5SXx9BAVkFdIen1ckPidaj-Q",
     authDomain: "semoapp-38259.firebaseapp.com",
@@ -154,12 +158,15 @@ if (localStorage.getItem("licensed") === "true") {
   const app = initializeApp(firebaseConfig);
   const db = getFirestore(app);
 
-  // 🎯 LİSANS KONTROL FONKSİYONU
+  // 🔐 Lisans kontrolü
   window.checkLicense = async function () {
-    const code = document.getElementById("licenseInput").value.trim();
+    const input = document.getElementById("licenseInput");
+    const error = document.getElementById("errorText");
+    const code = input.value.trim();
 
     if (!code) {
-      alert("Kod giriniz");
+      error.textContent = "Kod giriniz";
+      error.style.display = "block";
       return;
     }
 
@@ -168,16 +175,18 @@ if (localStorage.getItem("licensed") === "true") {
       const snap = await getDoc(ref);
 
       if (snap.exists() && snap.data().active === true) {
-        document.getElementById("errorText").style.display = "none";
+        // ✔️ lisans OK
         localStorage.setItem("licensed", "true");
-        localStorage.setItem("licenseCode", code); // 👈 BU SATIR
-        window.location.href = "/app.html";
+        localStorage.setItem("licenseCode", code);
+        window.location.href = "./app.html";
       } else {
-        document.getElementById("errorText").style.display = "block";
+        error.textContent = "Giriş kodu hatalı";
+        error.style.display = "block";
       }
-    } catch (err) {
-      console.error(err);
-      alert("Bağlantı hatası");
+    } catch (e) {
+      console.error(e);
+      error.textContent = "Bağlantı hatası";
+      error.style.display = "block";
     }
   };
 </script>
