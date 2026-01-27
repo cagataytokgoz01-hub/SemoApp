@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+
+<link rel="manifest" href="/manifest.json">
+<link rel="apple-touch-icon" href="/icons/icon-192.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="theme-color" content="#ffffff">
+
+<meta charset="UTF-8">
+<title>Semo</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<style>
+body,html{margin:0;padding:0;width:100%;height:100%;font-family:sans-serif;}
+.screen{display:none;width:100%;height:100%;align-items:center;justify-content:center;flex-direction:column;}
+#license{background:#fff2c7;}
+#splash{background:#8fd3f4;}
+#gender{background:#ffd6e8;}
+#home{background:#c8f7c5;}
+input,button{font-size:18px;padding:12px;border-radius:12px;border:none;}
+button{background:#d4a441;color:white;font-weight:bold;}
+</style>
+</head>
+
+<body>
+<div id="loginScreen" style="
+  display:none;
+  min-height:100svh;
+  padding:24px 16px;              /* 🔑 kenarlardan nefes */
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  background:#fffdf6;             /* 🔑 üst header ile AYNI */
+  font-family:'Poppins', system-ui, -apple-system, sans-serif;
+  box-sizing:border-box;
+">
+
+  <div style="
+    background:white;
+    padding:32px 28px;
+    border-radius:16px;
+    width:320px;
+    box-shadow:0 20px 40px rgba(0,0,0,.12);
+    text-align:center;
+  ">
+
+    <!-- LOGO / BAŞLIK -->
+    <div style="
+      font-size:22px;
+      font-weight:600;
+      margin-bottom:8px;
+      color:#2f3a5a;
+    ">
+      SemoApp Uygulama Girişi
+    </div>
+
+    <div style="
+      font-size:14px;
+      color:#6b7280;
+      margin-bottom:24px;
+    ">
+      Lisans kodunu giriniz
+    </div>
+
+    <!-- INPUT -->
+    <input
+      id="licenseInput"
+      type="text"
+      placeholder="Giriş Kodu"
+      style="
+        width:100%;
+        padding:12px;
+        font-size:16px;
+        border-radius:10px;
+        border:1px solid #d1d5db;
+        outline:none;
+        box-sizing:border-box;
+      "
+      onkeydown="if(event.key==='Enter'){checkLicense()}"
+    />
+
+    <!-- BUTTON -->
+    <button
+      onclick="checkLicense()"
+      style="
+        width:100%;
+        margin-top:16px;
+        padding:12px;
+        font-size:16px;
+        border:none;
+        border-radius:10px;
+        background:#4f46e5;
+        color:white;
+        cursor:pointer;
+      "
+    >
+      Giriş Yap
+    </button>
+
+    <!-- ERROR -->
+    <div
+      id="errorText"
+      style="
+        margin-top:12px;
+        font-size:14px;
+        color:#dc2626;
+        display:none;
+      "
+    >
+      Giriş kodu hatalı
+    </div>
+
+  </div>
+</div>
+
+<div id="splash" class="screen">
+  <h1>SPLASH</h1>
+</div>
+
+<div id="gender" class="screen">
+  <h2>Cinsiyet</h2>
+  <button onclick="selectGender('k')">Kız</button>
+  <button onclick="selectGender('e')">Erkek</button>
+</div>
+
+<div id="home" class="screen">
+  <h2>Ana Sayfa</h2>
+  <button onclick="logout()">Çıkış</button>
+</div>
+
+<script type="module">
+
+  // 🔐 ZATEN LİSANSLI MI?
+if (localStorage.getItem("licensed") === "true") {
+  window.location.replace("/app.html");
+}
+
+  // 🔥 Firebase SDK
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+  import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+  // 🔑 Firebase config (SENİN PANELDEN GELEN)
+  const firebaseConfig = {
+    apiKey: "AIzaSyBNgFdfhoV5SXx9BAVkFdIen1ckPidaj-Q",
+    authDomain: "semoapp-38259.firebaseapp.com",
+    projectId: "semoapp-38259",
+    storageBucket: "semoapp-38259.firebasestorage.app",
+    messagingSenderId: "877067367084",
+    appId: "1:877067367084:web:d826c6e7a80d77e58e2509"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const db = getFirestore(app);
+
+  // 🎯 LİSANS KONTROL FONKSİYONU
+  window.checkLicense = async function () {
+    const code = document.getElementById("licenseInput").value.trim();
+
+    if (!code) {
+      alert("Kod giriniz");
+      return;
+    }
+
+    try {
+      const ref = doc(db, "licenses", code);
+      const snap = await getDoc(ref);
+
+      if (snap.exists() && snap.data().active === true) {
+        document.getElementById("errorText").style.display = "none";
+        localStorage.setItem("licensed", "true");
+        localStorage.setItem("licenseCode", code); // 👈 BU SATIR
+        window.location.href = "/app.html";
+      } else {
+        document.getElementById("errorText").style.display = "block";
+      }
+    } catch (err) {
+      console.error(err);
+      alert("Bağlantı hatası");
+    }
+  };
+</script>
+
+</body>
+</html>

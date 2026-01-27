@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Nefes Boncuğu</title>
+
+<style>
+/* ====== GLOBAL DÜZELTME (TAŞMAYI BİTİREN SATIR) ====== */
+*, *::before, *::after{
+  box-sizing: border-box;
+}
+
+/* ====== TAM EKRAN ====== */
+html, body{
+  margin:0;
+  padding:0;
+  width:100%;
+  height:100%;
+  overflow:hidden;
+}
+body{
+  background: linear-gradient(#b7e2ff, #e9f7ff);
+  font-family: Arial, sans-serif;
+}
+
+/* ====== UYGULAMA KABUĞU ====== */
+.page{
+  width:100%;
+  height:100%;
+  display:flex;
+  flex-direction:column;
+}
+
+/* ====== ÜST SAHNE ====== */
+.stage{
+  flex:1;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding-top: calc(56px + env(safe-area-inset-top));
+}
+
+/* ====== BORU ====== */
+#tube{
+  width: min(70vw, 300px);
+  height: min(65svh, 520px);
+  border:4px solid #4a6cff;
+  border-radius:140px;
+  background:#fff;
+  position:relative;
+  overflow:hidden;
+}
+
+/* ====== BONCUK ====== */
+#bead{
+  width:50px;
+  height:50px;
+  background:#4a6cff;
+  border-radius:50%;
+  position:absolute;
+  left:50%;
+  transform:translateX(-50%);
+  top: calc(100% - 70px);
+  transition: top linear;
+}
+
+/* ====== ALT PANEL (TAŞMA YOK) ====== */
+.controls{
+  width:100%;
+  max-width: 520px;              /* 🔒 SAĞDAN TAŞMA BİTTİ */
+  margin: 0 auto;                /* 🔥 TAM ORTA */
+  padding: 16px 16px calc(20px + env(safe-area-inset-bottom));
+  display:flex;
+  flex-direction:column;
+  gap:12px;
+}
+
+.controls button{
+  width:100%;
+  padding:18px;
+  font-size:20px;
+  color:#fff;
+  border:none;
+  border-radius:14px;
+  cursor:pointer;
+}
+
+#startBtn{ background:#2ecc71; }
+#stopBtn{ background:#e74c3c; }
+
+#soundToggle{
+  right: calc(8px + env(safe-area-inset-right));
+  cursor:pointer;
+}
+
+#backBtn{
+  position:fixed;
+  top:12px;
+  left:12px;
+  width:44px;
+  height:44px;
+  background:transparent;      /* 🔥 EN KRİTİK SATIR */
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  z-index:10000;
+  text-decoration:none;
+}
+
+#backBtn img{
+  width:28px;
+  height:28px;
+  display:block;
+  pointer-events:none;         /* 🔥 TIKLAMA SORUNU ÇÖZÜMÜ */
+}
+</style>
+</head>
+
+<body>
+
+  <a id="backBtn" href="../index.html" aria-label="Geri">
+  <img src="images/geri.png" alt="Geri">
+</a>
+
+<audio id="introAudio" src="intro.mp3" preload="auto"></audio>
+
+<div class="page">
+
+  <div class="stage">
+    <div id="tube">
+      <div id="bead"></div>
+    </div>
+  </div>
+
+  <div class="controls">
+    <button id="startBtn">Başlat</button>
+    <button id="stopBtn">Bitir</button>
+  </div>
+
+</div>
+
+<script>
+
+const nefesAlSound   = new Audio("sounds/hava_iceri.mp3");
+const nefesVerSound  = new Audio("sounds/hava_disari.mp3");
+
+const alSound  = new Audio("sounds/al.mp3");
+const verSound = new Audio("sounds/ver.mp3");
+
+
+let running=false;
+let soundOn=true;
+
+const bead=document.getElementById("bead");
+const introAudio=document.getElementById("introAudio");
+
+let tickInterval=null;
+
+const tickSound=new Audio("https://cdn.pixabay.com/download/audio/2022/03/15/audio_0a90a5536e.mp3");
+const upSound=new Audio("https://cdn.pixabay.com/download/audio/2022/03/15/audio_c0d4740a19.mp3");
+const downSound=new Audio("https://cdn.pixabay.com/download/audio/2022/03/15/audio_687fb03e15.mp3");
+
+function startTicks(){
+  tickInterval=setInterval(()=>{
+    if(soundOn){
+      tickSound.currentTime=0;
+      tickSound.play();
+    }
+  },1000);
+}
+function stopTicks(){ clearInterval(tickInterval); }
+
+function startAnimation(){
+  if(running) return;
+  running=true;
+  startTicks();
+  function cycle(){
+    bead.style.transition="top 4s linear";
+    bead.style.top="20px";
+    if(soundOn){
+  nefesAlSound.currentTime = 0;
+  alSound.currentTime = 0;
+
+  nefesAlSound.play();
+  alSound.play();
+}
+
+    setTimeout(()=>{
+      bead.style.transition="top 4s linear";
+      bead.style.top="calc(100% - 70px)";
+if(soundOn){
+  nefesVerSound.currentTime = 0;
+  verSound.currentTime = 0;
+
+  nefesVerSound.play();
+  verSound.play();
+}
+
+      setTimeout(()=>{ if(running) cycle(); },4000);
+    },4000);
+  }
+  cycle();
+}
+function stopAnimation(){
+  running=false;
+  stopTicks();
+  window.speechSynthesis.cancel();
+  bead.style.transition="none";
+  bead.style.top="calc(100% - 70px)";
+}
+
+window.addEventListener("load",()=>{
+  if(soundOn){ introAudio.play().catch(()=>{}); }
+});
+
+document.getElementById("startBtn").addEventListener("click", startAnimation);
+document.getElementById("stopBtn").addEventListener("click", stopAnimation);
+</script>
+
+</body>
+</html>

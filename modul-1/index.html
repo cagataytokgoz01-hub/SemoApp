@@ -1,0 +1,515 @@
+<!doctype html>
+<html lang="tr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+  <title>Nasıl Hissediyorsun?</title>
+
+  <style>
+    /* Temel sıfırlama */
+    html, body{
+      margin:0;
+      padding:0;
+      width:100%;
+      height:100%;
+      overflow:hidden;
+      touch-action:manipulation;
+      box-sizing:border-box;
+      -webkit-tap-highlight-color: transparent;
+    }
+    *, *::before, *::after{ box-sizing:inherit; }
+
+    /* Mavi arka plan */
+    body{
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      background:linear-gradient(#b7e2ff,#e9f7ff);
+    }
+
+.stage{
+  width:94vw;
+  max-width:420px;
+  height:88vh;
+  max-height:640px;
+
+  background:white;
+  border-radius:28px;
+  box-shadow:0 12px 30px rgba(0,0,0,.08);
+
+  display:flex;
+  flex-direction:column;
+  overflow:hidden;
+}
+
+    /* Sol üst home/geri butonu */
+    #homeBtn{
+      position:fixed;
+      top:12px;
+      left:12px;
+      width:44px;
+      height:44px;
+      background:transparent;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      z-index:1000000;
+      text-decoration:none;
+    }
+    #homeBtn img{
+      width:28px;
+      height:28px;
+      display:block;
+      pointer-events:none;
+    }
+
+    #parentBtn{
+  position:fixed;
+  top:12px;      /* üst bantla hizalı */
+  right:12px;    /* sağ köşe */
+  width:44px;
+  height:44px;
+  background:transparent;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  z-index:1000001;
+  cursor:pointer;
+}
+#parentBtn img{
+  width:28px;
+  height:28px;
+  display:block;
+  pointer-events:none;
+}
+
+#parentPortal{
+  position:fixed;
+  inset:0;
+  background:rgba(0,0,0,.6);
+  display:none;
+  z-index:2000000;
+  align-items:center;
+  justify-content:center;
+}
+
+.portal-box{
+  background:#ffffff;
+  width:90%;
+  max-width:360px;
+  padding:24px;
+  border-radius:24px;
+  box-shadow:0 10px 30px rgba(0,0,0,.2);
+  text-align:center;
+}
+
+#childPhotoFrame{
+  position:absolute;
+  top:50px;
+  left:50%;
+  transform:translateX(-50%);
+  width:160px;
+  height:160px;
+  background:#fff;
+  border-radius:18px;
+  box-shadow:0 6px 16px rgba(0,0,0,.15);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  overflow:visible;
+}
+
+#childPhotoFrame img{
+  width:100%;
+  height:100%;
+  object-fit:cover;
+}
+
+.portal-photos{
+  margin-top:16px;
+  display:flex;
+  flex-direction:column;
+  gap:12px;
+}
+
+.portal-photo{
+  display:flex;
+  align-items:center;
+  gap:12px;
+}
+
+.portal-photo img{
+  width:60px;
+  height:60px;
+  border-radius:12px;
+  object-fit:cover;
+}
+
+.portal-photo button{
+  background:#f87171;
+  border:none;
+  color:white;
+  padding:6px 12px;
+  border-radius:10px;
+  font-size:13px;
+}
+
+#uploadBtn{
+  width:100%;
+  background:#3b82f6;
+  color:white;
+  border:none;
+  padding:14px;
+  border-radius:14px;
+  font-size:16px;
+  font-weight:600;
+  margin-top:12px;
+}
+
+#uploadBtn:active{
+  transform:scale(.97);
+}
+
+#closePortal{
+  margin-top:20px;
+  width:100%;
+  background:#e5e7eb;
+  color:#111;
+  border:none;
+  padding:12px;
+  border-radius:14px;
+  font-weight:600;
+}
+
+#emotionGrid{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  grid-auto-rows:auto;
+  gap:18px;
+  padding:24px 28px 12px;
+  justify-items:stretch;
+}
+
+.emotionBtn{
+  width:100%;
+  aspect-ratio:1/1;
+  max-width:160px;
+  margin:0 auto;
+  border:none;
+  background:transparent;
+  border-radius:18px;
+}
+
+.emotionBtn img{
+  width:100%;
+  height:100%;
+  object-fit:contain;
+  border-radius:18px;
+  display:block;
+}
+
+.emotionBtn.selected{
+  box-shadow:0 0 0 4px rgba(34,197,94,.6);
+  transform:scale(1.02);
+}
+
+#okBtn{
+  background:url("images/heart.png") center no-repeat;
+  background-size:contain;
+  width:72px;
+  height:72px;
+  border:none;
+  outline:none;
+  cursor:pointer;
+}
+
+#okBtn:disabled{
+  opacity:.4;
+  filter:grayscale(1);
+}
+
+.stage-content{
+  flex:1;
+  overflow:hidden;
+  padding-top:172px;     /* 🔥 fotoğraf + çizgi için alan */
+  padding-bottom:100px; /* 🔥 kalp için alan */
+}
+
+.stage-footer{
+  height:90px;
+  flex-shrink:0;
+  padding:16px 28px 20px;
+  background:linear-gradient(to top, white, rgba(255,255,255,.8));
+}
+
+.stage-footer{
+  display:flex;
+  justify-content:center;
+}
+
+#softTransition{
+  position:fixed;
+  inset:0;
+  background:rgba(0,0,0,0.35);
+  display:none;
+  align-items:center;
+  justify-content:center;
+  z-index:3000000;
+}
+
+.softCircle{
+  width:220px;
+  height:220px;
+  border-radius:50%;
+  background:radial-gradient(circle, rgba(255,255,255,0.9), rgba(255,255,255,0.25), transparent 70%);
+  animation:softPulse 4s ease-in-out infinite;
+}
+
+@keyframes softPulse{
+  0%{ transform:scale(0.9); opacity:0.6; }
+  50%{ transform:scale(1); opacity:1; }
+  100%{ transform:scale(0.9); opacity:0.6; }
+}
+
+#okBtn.inactive{
+  opacity:.35;
+  filter:grayscale(1);
+}
+
+.stage-footer{
+  position:relative;
+  z-index:10;
+}
+
+#okBtn{
+  position:relative;
+  z-index:11;
+}
+
+#emotionGrid{
+  position:relative;
+  z-index:1;
+}
+
+@media (min-width: 768px){
+  #childPhotoFrame{
+    top: 110px;   /* web’de biraz aşağı al */
+  }
+}
+
+#startOverlay{
+  position:fixed;
+  inset:0;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  background:rgba(0,0,0,0.15);
+  z-index:4000000;
+  pointer-events:none;
+}
+
+#startBtn{
+  width:160px;          /* büyük ve net */
+  height:auto;
+  cursor:pointer;
+  user-select:none;
+  pointer-events:auto;
+}
+
+  </style>
+</head>
+
+<body>
+
+  <!-- Home/Geri -->
+  <a id="homeBtn" href="../index.html" aria-label="Home">
+    <img src="images/geri.png" alt="Home">
+  </a>
+
+<a id="parentBtn" aria-label="Ebeveyn">
+  <img src="images/ebeveyn.png" alt="Ebeveyn">
+</a>
+
+<div id="startOverlay">
+  <img id="startBtn" src="images/ileri.png" alt="Başla">
+</div>
+
+
+<div class="stage">
+
+  <div class="stage-header">
+ <div id="childPhotoFrame">
+    <img id="childPhoto">
+  </div>
+  <div class="divider"></div>
+</div>
+
+<div class="stage-content">
+  <div id="emotionGrid"></div>
+</div>
+
+<div class="stage-footer">
+  <button id="okBtn"></button>
+</div>
+
+<div id="parentPortal">
+  <div class="portal-box">
+    <h2>Kişi Ekle</h2>
+<button id="uploadBtn">Kişi Fotoğraflarını Yükle</button>
+<input type="file" id="fileInput" accept="image/*" hidden>
+
+<div id="portalPhotos" class="portal-photos"></div>
+
+<button id="closePortal">Kapat</button>
+  </div>
+
+</div>
+
+<div id="softTransition">
+  <div class="softCircle"></div>
+</div>
+
+<audio id="startVoice" src="sounds/hangisi.mp3" preload="auto"></audio>
+<audio id="okVoice" src="sounds/burada.mp3" preload="auto"></audio>
+<audio id="softVoice" preload="auto"></audio>
+
+<script>
+document.getElementById("parentBtn").onclick = () => {
+  document.getElementById("parentPortal").style.display = "flex";
+};
+
+document.getElementById("closePortal").onclick = () => {
+  document.getElementById("parentPortal").style.display = "none";
+};
+
+const startVoice = document.getElementById("startVoice");
+const okVoice = document.getElementById("okVoice");
+const uploadBtn = document.getElementById("uploadBtn");
+const fileInput = document.getElementById("fileInput");
+const portalPhotos = document.getElementById("portalPhotos");
+const childPhoto = document.getElementById("childPhoto");
+
+let photos = JSON.parse(localStorage.getItem("parentPhotos") || "[]");
+
+function save(){
+  localStorage.setItem("parentPhotos", JSON.stringify(photos));
+}
+
+function render(){
+  portalPhotos.innerHTML = "";
+
+  photos.forEach((p, i)=>{
+    const div = document.createElement("div");
+    div.className = "portal-photo";
+    div.innerHTML = `
+      <img src="${p}">
+      <button onclick="removePhoto(${i})">Kişiyi Sil</button>
+    `;
+    portalPhotos.appendChild(div);
+  });
+
+  // çocuk ekranına ilk fotoğraf
+  if(photos[0]){
+    childPhoto.src = photos[0];
+    childPhoto.style.display="block";
+  }else{
+    childPhoto.style.display="none";
+  }
+}
+
+function removePhoto(i){
+  photos.splice(i,1);
+  save();
+  render();
+}
+
+uploadBtn.onclick = ()=> fileInput.click();
+
+fileInput.onchange = ()=>{
+  const file = fileInput.files[0];
+  if(!file) return;
+
+  const reader = new FileReader();
+  reader.onload = ()=>{
+    photos.push(reader.result);
+    save();
+    render();
+  };
+  reader.readAsDataURL(file);
+};
+
+render();
+
+// 1) Cinsiyete göre klasör seç (e / k)
+const gender = localStorage.getItem("childGender") || "e"; 
+const base = `images/characters/${gender}/`;
+
+// 2) 4 duygu dosya adı (png değilse uzantıyı değiştir)
+const emotions = ["kizmis","korkmus","neseli","uzgun"];
+
+const grid = document.getElementById("emotionGrid");
+const okBtn = document.getElementById("okBtn");
+
+let selectedEmotion = null;
+
+// 4’lü butonları oluştur
+grid.innerHTML = emotions.map(name => `
+  <button class="emotionBtn" data-emotion="${name}" aria-label="${name}">
+    <img src="${base}${name}.png" alt="">
+  </button>
+`).join("");
+
+// Tıklama: seçiliyi işaretle
+grid.addEventListener("click", (e) => {
+  const btn = e.target.closest(".emotionBtn");
+  if(!btn) return;
+
+  // seçimi kaydet
+  selectedEmotion = btn.dataset.emotion;
+
+  // seçili görünümü temizle
+  grid.querySelectorAll(".emotionBtn").forEach(b => b.classList.remove("selected"));
+  btn.classList.add("selected");
+
+  // tamam aktif
+  okBtn.classList.remove("inactive");
+});
+
+okBtn.classList.add("inactive"); // başlangıçta pasif görünsün
+
+okBtn.addEventListener("click", () => {
+  if(!selectedEmotion) return;
+    okVoice.play();   // burada.mp3
+
+  // Geçiş perdesini aç
+  const overlay = document.getElementById("softTransition");
+  overlay.style.display = "flex";
+
+  // Ses altyapısı (dosya daha sonra eklenecek)
+  const voice = document.getElementById("softVoice");
+  if(voice.src) voice.play();
+
+  // 2.5 sn sonra buradan sonraki adıma geçilebilir
+  setTimeout(()=>{
+  overlay.style.display = "none";
+
+  // seçimi temizle
+  selectedEmotion = null;
+
+  document.querySelectorAll(".emotionBtn").forEach(btn=>{
+    btn.classList.remove("selected");
+  });
+
+},4000);   // daire süresi ile aynı
+});
+
+document.getElementById("startBtn").addEventListener("click", () => {
+  document.getElementById("startOverlay").style.display = "none";
+  startVoice.play();   // hangisi.mp3
+});
+
+</script>
+
+
+</body>
+</html>

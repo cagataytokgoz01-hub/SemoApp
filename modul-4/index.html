@@ -1,0 +1,298 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Duygu Bulutları</title>
+
+<style>
+html, body {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  overscroll-behavior: none;
+  touch-action: manipulation;
+}
+
+html,body{
+  background:linear-gradient(#b7e2ff,#e9f7ff);
+  font-family:Arial,sans-serif;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+
+/* SAHNE */
+.stage{
+  width:96vw;
+  max-width:1200px;
+  height: calc(100svh - 80px);
+  max-height:520px;
+  position:relative;
+  background:#ffffff;
+  border-radius:24px;
+  overflow:hidden;
+  border:2px solid rgba(0,0,0,.05);
+  box-shadow:0 12px 30px rgba(0,0,0,.08);
+}
+
+.controls{
+  position:absolute;
+  bottom: calc(16px + env(safe-area-inset-bottom));
+  left:16px;
+  z-index:10;
+  display:flex;
+  gap:8px;
+}
+
+button{
+  padding:6px 14px;
+  border-radius:20px;
+  border:none;
+  font-weight:bold;
+  cursor:pointer;
+}
+#startBtn{ background:#2ecc71; color:white; }
+#stopBtn{ background:#e74c3c; color:white; }
+
+/* 🦘 KANGURU */
+#kanguru{
+  position:absolute;
+  left:50%;
+  top:50%;
+  transform:translate(-50%, -50%) scale(1);
+  transform-origin:center center;
+  max-width:70%;
+  max-height:80%;
+  transition: transform .25s ease;
+  z-index:3;
+}
+
+/* ☁️ BULUT */
+.cloud{
+  position:absolute;
+  top:-140px;
+  left:50%;
+  transform:translateX(-50%);
+  width:220px;
+  z-index:5;
+}
+
+/* =========================
+   🔄 YATAY ÇEVİRME UYARISI
+========================= */
+.rotate-overlay{
+  position:fixed;
+  inset:0;
+  display:none;
+  align-items:center;
+  justify-content:center;
+  background:#ffffff;
+  z-index:999999;
+}
+
+.rotate-overlay img{
+  max-width:90%;
+  max-height:90%;
+  object-fit:contain;
+}
+
+/* 📱 DİKEYDE: SADECE UYARI */
+@media (orientation: portrait){
+  .rotate-overlay{ display:flex; }
+  .stage{ display:none; }
+}
+
+/* 📱 YATAYDA: UYGULAMA */
+@media (orientation: landscape){
+  .rotate-overlay{ display:none; }
+  .stage{ display:block; }
+}
+
+#backBtn{
+  position:fixed;
+  top:12px;
+  left:12px;
+  width:44px;
+  height:44px;
+  background:transparent;      /* 🔥 kritik */
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  z-index:1000000;             /* rotate-overlay üstünde */
+  text-decoration:none;
+}
+
+#backBtn img{
+  width:28px;
+  height:28px;
+  display:block;
+  pointer-events:none;         /* 🔥 tıklama sorunu çözülür */
+}
+
+</style>
+</head>
+
+<body>
+
+  <a id="backBtn" href="../index.html" aria-label="Geri">
+  <img src="images/geri.png" alt="Geri">
+</a>
+
+<audio id="introAudio" src="intro.mp3" preload="auto"></audio>
+
+<!-- 🔄 YATAY ÇEVİRME UYARISI -->
+<div class="rotate-overlay">
+  <img src="images/yatay.png" alt="Ekranı yatay çevir">
+</div>
+
+<div class="stage" id="stage">
+  <div class="controls">
+    <button id="startBtn">Başlat</button>
+    <button id="stopBtn">Bitir</button>
+  </div>
+  <img id="kanguru" src="images/kanguru_mutlu.png">
+</div>
+
+<script>
+(() => {
+
+  const stage = document.getElementById("stage");
+  const kanguru = document.getElementById("kanguru");
+  const startBtn = document.getElementById("startBtn");
+  const stopBtn  = document.getElementById("stopBtn");
+
+  const BASE_SCALE = 0.65;
+
+  let kanguruScale = 0.75;
+  const MIN_SCALE = 0.5;
+  const MAX_SCALE = 1.5;
+
+  let cloud = null;
+  let cloudType = null;
+  let spaceUsed = false;
+
+  let running = false;
+
+  function applyScale(){
+    kanguru.style.transform =
+      `translate(-50%, -50%) scale(${kanguruScale})`;
+  }
+
+  function resetKanguru(){
+  kanguru.src = "images/kanguru_mutlu.png";
+  kanguru.style.transform =
+    `translate(-50%, -50%) scale(${BASE_SCALE})`;
+}
+
+  function handleAction(){
+  if(!running || !cloud || spaceUsed) return;
+  spaceUsed = true;
+
+  if(cloudType === "white"){
+    kanguru.style.transform =
+      `translate(-50%, -50%) scale(${BASE_SCALE * 1.25})`;
+  }
+
+  if(cloudType === "gray"){
+    kanguru.style.transform =
+      `translate(-50%, -50%) scale(${BASE_SCALE * 0.80})`;
+    kanguru.src = "images/kanguru_uzgun.png";
+  }
+}
+
+  function spawnCloud(){
+  if(!running) return;
+
+  spaceUsed = false;
+  cloudType = Math.random() < 0.5 ? "white" : "gray";
+
+  cloud = document.createElement("img");
+  cloud.src = cloudType === "white"
+    ? "images/olumlu_bulut.png"
+    : "images/olumsuz_bulut.png";
+
+  cloud.className = "cloud";
+  stage.appendChild(cloud);
+
+  let y = -140;
+
+  function fall(){
+    if(!running){
+      cloud.remove();
+      return;
+    }
+
+    y += 3;
+    cloud.style.top = y + "px";
+
+   if(y > stage.clientHeight){
+
+  // ☁️ Siyah bulut geçti, hiç etkileşim yoksa
+  if(cloudType === "gray" && !spaceUsed){
+
+    // 🔺 kısa büyüme
+    kanguru.style.transform =
+      `translate(-50%, -50%) scale(${BASE_SCALE * 1.25})`;
+
+    // 🔻 hemen ardından küçülme
+    setTimeout(() => {
+      kanguru.style.transform =
+        `translate(-50%, -50%) scale(${BASE_SCALE})`;
+    }, 180);
+
+  } else {
+    // Diğer tüm durumlarda normal reset
+    resetKanguru();
+  }
+
+  cloud.remove();
+  setTimeout(spawnCloud, 300);
+  return;
+}
+
+    requestAnimationFrame(fall);
+  }
+
+  fall();
+}
+
+  /* EVENTLER — SADECE BİR KEZ */
+  window.addEventListener("keydown", e => {
+    if(e.code === "Space"){
+      e.preventDefault();
+      handleAction();
+    }
+  });
+
+  stage.addEventListener("touchstart", e => {
+  // Butonlara dokunulduysa oyun aksiyonu çalışmasın
+  if(e.target.closest(".controls")) return;
+
+  e.preventDefault();
+  handleAction();
+});
+
+  startBtn.onclick = () => {
+    if(running) return;
+    running = true;
+    resetKanguru();
+    spawnCloud();
+  };
+
+  stopBtn.onclick = () => {
+    running = false;
+    cloud?.remove();
+    cloud = null;
+    resetKanguru();
+  };
+
+  resetKanguru();
+
+})();
+</script>
+
+</body>
+</html>

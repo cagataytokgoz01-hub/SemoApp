@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<title>Gevşeme Uygulaması</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+
+<style>
+/* =========================
+   📱 ORTAK MOBİL KİLİT CSS
+========================= */
+html, body {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  overscroll-behavior: none;
+  touch-action: manipulation;
+  box-sizing: border-box;
+}
+*, *:before, *:after { box-sizing: inherit; }
+
+body {
+  min-height: 100vh;
+  min-height: 100svh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-family: "Comic Sans MS", Arial, sans-serif;
+  text-align: center;
+  background: linear-gradient(#b7e2ff, #e9f7ff);
+  padding-top: env(safe-area-inset-top);
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
+/* =========================
+   🧩 YATAY LAYOUT
+========================= */
+.app{
+  width: min(1100px, 96vw);
+  height: min(560px, calc(100svh - 24px));
+  background: #ffffff;
+  border-radius: 22px;
+  padding: 18px;
+  box-shadow: 0 18px 55px rgba(0,0,0,.12);
+
+  display: grid;
+  grid-template-columns: 1.25fr .75fr;
+  gap: 18px;
+  align-items: center;
+}
+
+/* SOL TARAF */
+.visual{
+  height: 100%;
+  border-radius: 18px;
+  overflow: hidden;
+  background: rgba(255,255,255,.35);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+
+#stepImage{
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center 75%;
+  display:block;
+  transition: opacity .35s ease;
+}
+
+/* SAĞ TARAF */
+.panel{
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  gap: 14px;
+}
+
+.control-btn{
+  width: min(360px, 88%);
+  padding: 18px 18px;
+  font-size: 22px;
+  border: none;
+  border-radius: 16px;
+  color: white;
+  cursor: pointer;
+  font-weight: 700;
+}
+.control-btn:active { transform: scale(0.98); }
+
+#startBtn{ background:#2ecc71; }
+#stopBtn{ background:#e74c3c; }
+
+/* =========================
+   🔄 SADECE GÖRSEL YATAY UYARI
+========================= */
+.rotate-overlay{
+  position:fixed;
+  inset:0;
+  display:none;
+  align-items:center;
+  justify-content:center;
+  background:#ffffff;
+  z-index:999999;
+}
+
+.rotate-overlay img{
+  max-width:90%;
+  max-height:90%;
+  object-fit:contain;
+}
+
+/* Dikeyde overlay açık, yatayda kapalı */
+@media (orientation: portrait){
+  .rotate-overlay{ display:flex; }
+  .app{ display:none; }
+}
+@media (orientation: landscape){
+  .rotate-overlay{ display:none; }
+  .app{ display:grid; }
+}
+
+/* Çok dar yataylar */
+@media (max-height: 420px){
+  .control-btn{ padding:14px 14px; font-size:20px; }
+}
+
+#backBtn{
+  position:fixed;
+  top:12px;
+  left:12px;
+  width:44px;
+  height:44px;
+  background:transparent;      /* 🔥 KRİTİK */
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  z-index:1000000;             /* rotate-overlay üstünde */
+  text-decoration:none;
+}
+
+#backBtn img{
+  width:28px;
+  height:28px;
+  display:block;
+  pointer-events:none;         /* 🔥 TIKLAMA SORUNU BİTER */
+}
+</style>
+</head>
+
+<body>
+
+<!-- ✅ SADECE GÖRSEL -->
+<div class="rotate-overlay">
+  <img src="images/yatay.png" alt="Ekranı yatay çevir">
+</div>
+
+<a id="backBtn" href="../index.html" aria-label="Geri">
+  <img src="images/geri.png" alt="Geri">
+</a>
+
+<audio id="introAudio" src="sounds/a1.mp3" preload="auto"></audio>
+
+<div class="app">
+  <div class="visual">
+    <img id="stepImage" src="images/1.png" alt="gevşeme adımı">
+  </div>
+
+  <div class="panel">
+    <button id="startBtn" class="control-btn">Başlat</button>
+    <button id="stopBtn" class="control-btn">Bitir</button>
+  </div>
+</div>
+
+<script>
+
+/* 🎧 TEK SES OYNATICI */
+const voicePlayer = new Audio();
+voicePlayer.preload = "auto";
+
+/* 🔊 SES DURUMU */
+let soundOn = true;
+const introAudio = document.getElementById("introAudio");
+
+/* 🗣️ KONUŞMA */
+function speak(text){
+  if(!soundOn) return;
+  const u = new SpeechSynthesisUtterance(text);
+  u.lang="tr-TR";
+  speechSynthesis.cancel();
+  speechSynthesis.speak(u);
+}
+
+function playAudio(src){
+  if(!soundOn) return;
+  if(!src) return;
+
+  voicePlayer.pause();
+  voicePlayer.currentTime = 0;
+  voicePlayer.src = src;
+  voicePlayer.play().catch(()=>{});
+}
+
+/* ======= OTOMATİK AKIŞ ======= */
+const startBtn = document.getElementById("startBtn");
+const stopBtn  = document.getElementById("stopBtn");
+const stepImage = document.getElementById("stepImage");
+
+const steps = [
+  { audio:"sounds/a1.mp3",  duration:6000, image:"images/2.png" },
+
+  { audio:"sounds/a2.mp3",  duration:4000, image:"images/3.png" },
+  { audio:"sounds/a3.mp3",  duration:4000, image:"images/4.png" },
+
+  { audio:"sounds/a4.mp3",  duration:4000, image:"images/5.png" },
+  { audio:"sounds/a5.mp3",  duration:4000, image:"images/6.png" },
+
+  { audio:"sounds/a6.mp3",  duration:4000, image:"images/7.png" },
+  { audio:"sounds/a7.mp3",  duration:4000, image:"images/8.png" },
+
+  { audio:"sounds/a8.mp3",  duration:6000, image:"images/9.png" },
+  { audio:"sounds/a9.mp3", duration:6000, image:"images/10.png" },
+  { audio:"sounds/a10.mp3", duration:6000, image:"images/11.png" },
+  { audio:"sounds/a11.mp3", duration:6000, image:"images/12.png" },
+
+  { audio:"sounds/a12.mp3", duration:3000, image:"images/13.png" },
+  { audio:"sounds/a13.mp3", duration:5000, image:"images/14.png" }
+];
+
+let step=0, running=false, timeoutRef=null;
+
+function applyStep(){
+  const s = steps[step];
+  playAudio(s.audio);
+  stepImage.style.opacity=0;
+  setTimeout(()=>{
+    stepImage.src=s.image;
+    stepImage.style.opacity=1;
+  },180);
+}
+
+function autoGo(){
+  if(running) return;
+  running=true;
+  startBtn.textContent="Devam Ediyor...";
+  startBtn.disabled=true;
+
+  function next(){
+    if(step>=steps.length){ resetApp(); return; }
+    applyStep();
+    timeoutRef=setTimeout(()=>{
+      step++;
+      next();
+    }, steps[step].duration);
+  }
+  next();
+}
+
+startBtn.onclick=autoGo;
+stopBtn.onclick=resetApp;
+
+function resetApp(){
+  clearTimeout(timeoutRef);
+  running=false;
+  step=0;
+  startBtn.textContent="Başlat";
+  startBtn.disabled=false;
+  stepImage.src="images/1.png";
+
+  voicePlayer.pause();
+  voicePlayer.currentTime = 0;
+}
+
+</script>
+
+</body>
+</html>
