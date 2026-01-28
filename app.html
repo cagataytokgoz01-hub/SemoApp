@@ -1436,9 +1436,16 @@ function exitApp(){
     speechSynthesis.cancel();
   }
 
+  // 🔴 GERÇEK ÇIKIŞ
+  localStorage.removeItem("licensed");
+  localStorage.removeItem("licenseCode");
+  localStorage.removeItem("childGender");
+
+  sessionStorage.removeItem("splashDone");
+
+  // 🔑 TAM YOL (BASE'TEN BAĞIMSIZ)
   window.location.replace("/SemoApp/index.html");
 }
-
 // 🚪 ÇIKIŞ ONAY MODALI
 function openExitConfirm(){
   document.getElementById("confirmExitModal").classList.add("active");
@@ -1470,6 +1477,7 @@ confirmExitModal.addEventListener("click", function(e){
 
 </body>
 </html>
+
 
 
 
