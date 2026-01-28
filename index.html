@@ -230,11 +230,38 @@ error.style.display = "block";
       error.textContent = "Bağlantı hatası";
       error.style.display = "block";
     }
+
+  if (devices[deviceId]) {
+
+  await updateDoc(ref, {
+    activeDevice: deviceId   // 🔑 BU SATIR
+  });
+
+  localStorage.setItem("licensed", "true");
+  localStorage.setItem("licenseCode", code);
+  window.location.href = "./app.html";
+  return;
+}
+if (deviceCount < data.maxDevices) {
+  devices[deviceId] = true;
+
+  await updateDoc(ref, {
+    devices: devices,
+    activeDevice: deviceId   // 🔑 BU SATIR
+  });
+
+  localStorage.setItem("licensed", "true");
+  localStorage.setItem("licenseCode", code);
+  window.location.href = "./app.html";
+  return;
+}
+
   };
 </script>
 
 </body>
 </html>
+
 
 
 
