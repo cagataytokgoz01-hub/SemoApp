@@ -1,0 +1,859 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Modül 6</title>
+
+<style>
+html, body{
+  margin:0;
+  padding:0;
+  width:100%;
+  height:100%;
+  overflow:hidden;
+  touch-action:manipulation;
+}
+
+body{
+  margin:0;
+  width:100vw;
+  height:100vh;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  background:linear-gradient(#b7e2ff,#e9f7ff);
+  overflow:hidden;
+}
+
+/* ⬜ ORTA ALAN */
+.stage{
+  width:96vw;
+  max-width:1200px;
+  height:90vh;
+  max-height:520px;
+  background:#ffffff;
+  border-radius:24px;
+  position:relative;
+  overflow:hidden;
+  box-shadow:0 12px 30px rgba(0,0,0,.08);
+}
+
+/* SAYFALAR */
+.page{
+  position:absolute;
+  inset:0;
+  display:none;
+}
+.page.active{ display:block; }
+
+/* 1. SAYFA */
+.start-btn{
+  background:none;
+  border:none;
+  cursor:pointer;
+  position:absolute;
+  left:50%;
+  top:50%;
+  transform:translate(-50%,-50%);
+}
+
+/* ileri.png boyutu */
+.start-btn img{
+  width:120px;   /* isterse 100 / 140 yapabilirsin */
+  height:auto;
+  display:block;
+}
+
+/* 🦘 KANGURU */
+.kangaroo-frame{
+  position:absolute;
+  right:16px;
+  bottom:16px;
+  width:120px;
+  height:120px;
+  background:#ffffff;
+  border-radius:18px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  box-shadow:0 4px 12px rgba(0,0,0,.15);
+}
+.kangaroo-frame img{
+  width:90%;
+  pointer-events:none;
+}
+
+/* 2. SAYFA – DUYGULAR (AYNEN KALDI) */
+.emotions{
+  width:100%;
+  height:100%;
+  max-width:900px;
+  margin:0 auto;
+
+  padding:24px 160px 24px 24px;
+  box-sizing:border-box;
+  display:grid;
+  grid-template-columns:repeat(3, 1fr);
+  grid-template-rows:repeat(2, auto);
+  gap:32px;
+  place-items:center;
+  place-content:center;
+}
+
+.emotion-card{
+  width:100%;
+  max-width:300px;
+  aspect-ratio:1 / 1;
+  box-sizing:border-box;
+  padding:0;
+  border-radius:18px;
+  border:3px solid transparent;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+.emotion-card.selected{
+  border-color:#22c55e;
+  transform:scale(1.04);
+}
+
+.emotion-card img{
+  width:100%;
+  height:100%;
+  object-fit:contain;   /* ✅ doğru */
+  border-radius:14px;
+}
+
+.next-btn{
+  position:absolute;
+  right:16px;
+  bottom:16px;
+  background:none;
+  border:none;
+  cursor:pointer;
+}
+
+/* ileri.png boyutu */
+.next-btn img{
+  width:70px;     /* 80–100 arası oynayabilirsin */
+  height:auto;
+  display:block;
+}
+
+/* YATAY */
+.rotate-overlay{
+  position:fixed;
+  inset:0;
+  display:none;
+  align-items:center;
+  justify-content:center;
+  background:#ffffff;
+  z-index:999999;
+}
+@media (orientation: portrait){
+  .rotate-overlay{ display:flex; }
+  .stage{ display:none; }
+}
+@media (orientation: landscape){
+  .rotate-overlay{ display:none; }
+  .stage{ display:block; }
+}
+
+#backBtn{
+  position:fixed;
+  top:12px;
+  left:12px;
+  width:44px;
+  height:44px;
+  background:transparent;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  z-index:1000000;
+  text-decoration:none;
+}
+
+#backBtn img{
+  width:28px;
+  height:28px;
+  display:block;
+  pointer-events:none;
+}
+
+/* =========================
+   3. SAYFA ORTALAMA
+========================= */
+
+.page3-wrap{
+  width:100%;
+  height:100%;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+
+.page3-emotions{
+  display:flex;
+  gap:40px;
+  align-items:center;
+  justify-content:center;
+}
+
+.page3-emotions img{
+  width: min(360px, 32vw);
+  max-width: 360px;
+  border-radius: 18px;
+}
+
+.rotate-overlay img{
+  max-width:90vw;
+  max-height:90vh;
+  object-fit:contain;
+}
+
+.choice-wrap{
+  width:100%;
+  height:100%;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:80px;
+}
+
+.choice-btn{
+  background:none;
+  border:none;
+  cursor:pointer;
+}
+
+.choice-btn img{
+  width:140px;
+  max-width:20vw;
+}
+
+.audio-wrap{
+  width:100%;
+  height:100%;
+  position:relative;
+}
+
+/* ORTA MİKROFON */
+.audio-btn.center{
+  position:absolute;
+  left:50%;
+  top:50%;
+  transform:translate(-50%, -50%);
+  background:none;
+  border:none;
+  cursor:pointer;
+}
+.audio-btn.center img{
+  width:200px;
+}
+
+/* SOL – İNDİR */
+.audio-btn.left{
+  position:absolute;
+  left:24px;
+  bottom:24px;
+  background:none;
+  border:none;
+  cursor:pointer;
+}
+.audio-btn.left img{
+  width:70px;
+  opacity:.4;
+}
+.audio-btn.left.active img{
+  opacity:1;
+}
+
+/* SAĞ – KAPAT */
+.audio-btn.right{
+  position:absolute;
+  right:24px;
+  bottom:24px;
+  background:none;
+  border:none;
+  cursor:pointer;
+}
+.audio-btn.right img{
+  width:70px;
+  height:auto;
+}
+
+.draw-wrap{
+  width:100%;
+  height:100%;
+  position:relative;
+}
+
+/* ORTA ALAN */
+.canvas-wrap{
+  position:absolute;
+
+  /* ⬆️ ÜSTTEN UZASIN (araçlara yaklaşsın) */
+  top:100px;
+
+  /* ⬇️ ALTTAN UZASIN (butonlara yaklaşsın) */
+  bottom:40px;
+
+  /* ⬅️➡️ YANDAN KISALSIN */
+  left:160px;
+  right:160px;
+
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+
+#drawCanvas{
+  width:100%;
+  height:100%;
+  border-radius:18px;
+  touch-action:none;
+  background:#fff;
+  border:2px solid #000000;
+}
+
+/* ARAÇLAR */
+.draw-area{
+  position:absolute;
+
+  /* ⬆️ üst araçlardan sonra */
+  top:120px;
+
+  /* ⬇️ alt butonlardan önce */
+  bottom:140px;
+
+  /* ⬅️➡️ yanlardan dar */
+  left:120px;
+  right:120px;
+
+  background:#ffffff;
+  border-radius:20px;
+  box-shadow:0 8px 20px rgba(0,0,0,.12);
+
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+
+.draw-tools button{
+  background:#f1f5f9;
+  border:none;
+  border-radius:12px;
+  padding:10px 14px;
+  font-size:20px;
+  cursor:pointer;
+}
+.draw-tools input[type=color]{
+  width:44px;
+  height:44px;
+  border:none;
+  padding:0;
+  background:none;
+}
+
+.draw-tools{
+  position:absolute;
+  top:16px;
+  left:50%;
+  transform:translateX(-50%);
+  display:flex;
+  align-items:center;
+  gap:16px;
+}
+
+.tool-btn{
+  background:#f1f5f9;
+  border:none;
+  border-radius:14px;
+  padding:10px 14px;
+  font-size:22px;
+  cursor:pointer;
+}
+
+.color-palette{
+  display:flex;
+  gap:10px;
+  background:#f8fafc;
+  padding:10px 14px;
+  border-radius:18px;
+}
+
+.color-dot{
+  width:28px;
+  height:28px;
+  border-radius:50%;
+  border:none;
+  cursor:pointer;
+}
+
+</style>
+</head>
+
+<body>
+
+<audio id="audioPage1" src="sounds/hangi.mp3" preload="auto"></audio>
+<audio id="audioPage2" src="sounds/bakalim.mp3" preload="auto"></audio>
+<audio id="audioPage3" src="sounds/ne_yapmak.mp3" preload="auto"></audio>
+
+<a id="backBtn" href="../index.html" aria-label="Geri">
+  <img src="images/geri.png" alt="Geri">
+</a>
+
+<div class="rotate-overlay">
+  <img src="images/yatay.png" alt="Ekranı yatay çevir">
+</div>
+
+<div class="stage">
+
+<!-- 1. SAYFA -->
+<div class="page active" id="page1">
+
+  <button class="start-btn" onclick="goNext()">
+    <img src="images/ileri.png" alt="İleri">
+  </button>
+
+</div>
+
+<!-- 2. SAYFA -->
+<div class="page" id="page2">
+  <div class="emotions">
+<div class="emotion-card" data-name="heyecanlı" data-key="heyecanli"><img></div>
+<div class="emotion-card" data-name="kızgın"    data-key="kizmis"><img></div>
+<div class="emotion-card" data-name="korkmuş"   data-key="korkmus"><img></div>
+<div class="emotion-card" data-name="neşeli"    data-key="neseli"><img></div>
+<div class="emotion-card" data-name="sakin"     data-key="sakin"><img></div>
+<div class="emotion-card" data-name="üzgün"     data-key="uzgun"><img></div>
+  </div>
+  <button class="next-btn" onclick="goPage3()">
+  <img src="images/ileri.png" alt="İleri">
+</button>
+</div>
+
+<!-- 3. SAYFA -->
+<div class="page" id="page3">
+  <div class="page3-wrap">
+    <div class="page3-emotions" id="page3Emotions"></div>
+  </div>
+  <button class="next-btn" onclick="goPage4()">
+  <img src="images/ileri.png" alt="İleri">
+</button>
+</div>
+
+<!-- 4. SAYFA -->
+<div class="page" id="page4">
+  <div class="choice-wrap">
+
+    <button class="choice-btn" onclick="goChoice('audio')">
+      <img src="images/4_ses_kaydi.png" alt="Ses Kaydı">
+    </button>
+
+    <button class="choice-btn" onclick="goChoice('draw')">
+      <img src="images/4_resim.png" alt="Resim Yap">
+    </button>
+
+    <button class="choice-btn" onclick="goChoice('skip')">
+      <img src="images/4_gec.png" alt="Geç">
+    </button>
+    </div>
+</div>
+
+<!-- 4A – SES KAYDI -->
+<div class="page" id="page_audio">
+  <div class="audio-wrap">
+
+    <!-- Mavi İndir -->
+    <button id="downloadBtn" class="audio-btn left" disabled>
+      <img src="images/s_indir.png">
+    </button>
+
+    <!-- Mikrofon -->
+    <button id="recordBtn" class="audio-btn center">
+      <img id="micIcon" src="images/s_mic1.png">
+    </button>
+
+    <!-- Kırmızı Kapat -->
+    <button id="closeBtn" class="audio-btn right">
+      <img src="images/s_kapat.png">
+    </button>
+
+<audio id="recordedAudio" style="display:none"></audio>
+
+  </div>
+</div>
+
+<!-- 4B – RESİM -->
+<div class="page" id="page_draw">
+  <div class="draw-wrap">
+
+    <!-- SOL – İNDİR -->
+    <button id="drawDownloadBtn" class="audio-btn left" disabled>
+      <img src="images/s_indir.png">
+    </button>
+
+    <!-- ORTA – ÇİZİM -->
+    <div class="canvas-wrap">
+      <canvas id="drawCanvas"></canvas>
+    </div>
+
+    <!-- ARAÇLAR -->
+    <div class="draw-tools">
+
+  <button id="penBtn" class="tool-btn">🖊️</button>
+
+  <div class="color-palette" id="colorPalette">
+    <button class="color-dot" data-color="#000000" style="background:#000000"></button>
+    <button class="color-dot" data-color="#ef4444" style="background:#ef4444"></button>
+    <button class="color-dot" data-color="#f97316" style="background:#f97316"></button>
+    <button class="color-dot" data-color="#eab308" style="background:#eab308"></button>
+    <button class="color-dot" data-color="#22c55e" style="background:#22c55e"></button>
+    <button class="color-dot" data-color="#06b6d4" style="background:#06b6d4"></button>
+    <button class="color-dot" data-color="#3b82f6" style="background:#3b82f6"></button>
+    <button class="color-dot" data-color="#8b5cf6" style="background:#8b5cf6"></button>
+    <button class="color-dot" data-color="#ec4899" style="background:#ec4899"></button>
+    <button class="color-dot" data-color="#6b7280" style="background:#6b7280"></button>
+  </div>
+
+  <button id="eraserBtn" class="tool-btn">🧽</button>
+
+</div>
+
+    <!-- SAĞ – KAPAT -->
+    <button id="drawCloseBtn" class="audio-btn right">
+      <img src="images/s_kapat.png">
+    </button>
+
+  </div>
+</div>
+
+<div class="page" id="page_skip">
+  <button id="skipCloseBtn" class="audio-btn right">
+    <img src="images/s_kapat.png" alt="Kapat">
+  </button>
+</div>
+
+<script>
+
+const audioPage1 = document.getElementById("audioPage1");
+const audioPage2 = document.getElementById("audioPage2");
+const audioPage3 = document.getElementById("audioPage3");
+
+
+let scene = "IDLE";
+
+const SCENE = {
+  IDLE: "IDLE",
+  RECORDING: "RECORDING",
+  PROCESSING: "PROCESSING",
+  PLAYBACK: "PLAYBACK",
+  DONE: "DONE"
+};
+
+const page1 = document.getElementById("page1");
+const page2 = document.getElementById("page2");
+const pageBlank = document.getElementById("page_blank");
+
+/* SAYFA GEÇİŞLERİ */
+function goNext(){
+  audioPage1.currentTime = 0;
+  audioPage1.play();          // 🔊 hangi.mp3
+
+  page1.classList.remove("active");
+  page2.classList.add("active");
+}
+
+function goBlank(){
+  page2.classList.remove("active");
+  pageBlank.classList.add("active");
+}
+
+const gender = localStorage.getItem("childGender") || "k";
+const charBase = "images/characters/" + gender + "/";
+
+document.querySelectorAll(".emotion-card").forEach(card=>{
+  const key = card.dataset.key;
+  card.querySelector("img").src = charBase + key + ".png";
+});
+
+/* DUYGU SEÇİMİ – EN FAZLA 3 (AYNEN KALDI) */
+const selected = [];
+const selectedKeys = [];
+
+document.querySelectorAll(".emotion-card").forEach(card=>{
+  card.onclick = ()=>{
+    const key = card.dataset.key;
+
+    if(card.classList.contains("selected")){
+      card.classList.remove("selected");
+
+      const i = selectedKeys.indexOf(key);
+      if(i > -1){
+        selected.splice(i,1);
+        selectedKeys.splice(i,1);
+      }
+
+    }else{
+      if(selectedKeys.length >= 3) return;
+
+      card.classList.add("selected");
+      selected.push(card.dataset.name);
+      selectedKeys.push(key);
+    }
+  };
+});
+
+const page3 = document.getElementById("page3");
+const page3Emotions = document.getElementById("page3Emotions");
+
+function goPage3(){
+  audioPage2.currentTime = 0;
+  audioPage2.play();          // 🔊 bakalim.mp3
+
+  page2.classList.remove("active");
+  page3.classList.add("active");
+
+  renderSelectedEmotionsOnPage3();
+}
+
+function renderSelectedEmotionsOnPage3(){
+  page3Emotions.innerHTML = "";
+
+selectedKeys.forEach(key=>{
+  const img = document.createElement("img");
+  img.src = charBase + key + ".png";
+  page3Emotions.appendChild(img);
+});
+}
+
+const page4 = document.getElementById("page4");
+
+function goPage4(){
+  audioPage3.currentTime = 0;
+  audioPage3.play();          // 🔊 ne_yapmak.mp3
+
+  page3.classList.remove("active");
+  page4.classList.add("active");
+}
+
+function goChoice(type){
+  page4.classList.remove("active");
+
+  const target = document.getElementById("page_" + type);
+  target.classList.add("active");
+
+  // 🎯 SADECE 4B açıldığında canvas'ı ölç
+  if(type === "draw"){
+    requestAnimationFrame(()=>{
+      resizeCanvas();
+    });
+  }
+}
+
+let mediaRecorder;
+let audioChunks = [];
+let currentStream = null;
+let audioBlob;
+let audioUrl;
+let isRecording = false;
+
+const recordBtn = document.getElementById("recordBtn");
+const micIcon  = document.getElementById("micIcon");
+const downloadBtn = document.getElementById("downloadBtn");
+const closeBtn = document.getElementById("closeBtn");
+
+let timers = [];
+function safeTimeout(fn, t){
+  const id = setTimeout(fn, t);
+  timers.push(id);
+  return id;
+}
+function clearAllTimers(){
+  timers.forEach(clearTimeout);
+  timers = [];
+}
+
+function stopRecordingIfAny(){
+  try{
+    if(mediaRecorder && mediaRecorder.state !== "inactive") mediaRecorder.stop();
+  }catch(e){}
+  try{
+    if(mediaRecorder && mediaRecorder.stream){
+      mediaRecorder.stream.getTracks().forEach(tr=>tr.stop());
+    }
+  }catch(e){}
+}
+
+/* 🎤 MİKROFON */
+recordBtn.onclick = async ()=>{
+  if(!isRecording){
+
+    // Önceki kayıt varsa temizle
+if(audioUrl){
+  URL.revokeObjectURL(audioUrl);
+  audioUrl = null;
+}
+
+// İndir butonunu sıfırla
+downloadBtn.disabled = true;
+downloadBtn.classList.remove("active");
+
+    const stream = await navigator.mediaDevices.getUserMedia({ audio:true });
+    mediaRecorder = new MediaRecorder(stream);
+    audioChunks = [];
+
+    mediaRecorder.ondataavailable = e => audioChunks.push(e.data);
+
+mediaRecorder.onstop = () => {
+  // 1️⃣ Blob oluştur
+  audioBlob = new Blob(audioChunks, { type: "audio/webm" });
+
+  // 2️⃣ URL oluştur
+  audioUrl = URL.createObjectURL(audioBlob);
+
+  // 3️⃣ Audio elemana bağla (ileride dinlemek için)
+  recordedAudio.src = audioUrl;
+
+  // 4️⃣ İNDİR BUTONUNU AKTİF ET
+  downloadBtn.disabled = false;
+  downloadBtn.classList.add("active");
+
+  scene = SCENE.DONE;
+};
+
+    mediaRecorder.start();
+    isRecording = true;
+
+    micIcon.src = "images/s_mic2.png"; // 🔴 kırmızı
+  }else{
+    mediaRecorder.stop();
+    isRecording = false;
+
+    micIcon.src = "images/s_mic1.png"; // ⚫ siyah
+  }
+};
+
+/* ⬇️ İNDİR */
+downloadBtn.onclick = ()=>{
+  if(!audioUrl) return;
+
+  const a = document.createElement("a");
+  a.href = audioUrl;
+  a.download = "ses-kaydi.webm";
+  a.click();
+};
+
+/* ❌ KAPAT – RESET */
+closeBtn.onclick = ()=>{
+  clearAllTimers();
+  stopRecordingIfAny();
+
+  document.querySelectorAll(".page").forEach(p=>p.classList.remove("active"));
+  document.getElementById("page1").classList.add("active"); // 👈 doğru başlangıç
+
+  scene = SCENE.IDLE;
+  audioChunks = [];
+  recordedAudio.src = "";
+
+  if(audioUrl){
+  URL.revokeObjectURL(audioUrl);
+  audioUrl = null;
+}
+downloadBtn.disabled = true;
+downloadBtn.classList.remove("active");
+
+};
+
+const canvas = document.getElementById("drawCanvas");
+const ctx = canvas.getContext("2d");
+
+let drawing = false;
+let currentColor = "#000000";
+let isEraser = false;
+
+/* CANVAS BOYUT */
+function resizeCanvas(){
+  const area = document.querySelector(".canvas-wrap");
+  const rect = area.getBoundingClientRect();
+
+  canvas.width  = rect.width;
+  canvas.height = rect.height;
+}
+
+resizeCanvas();
+window.addEventListener("resize", resizeCanvas);
+
+/* ÇİZİM */
+canvas.addEventListener("pointerdown", e=>{
+  drawing = true;
+
+  ctx.beginPath();
+  ctx.strokeStyle = isEraser ? "#ffffff" : currentColor;
+  ctx.lineWidth   = isEraser ? 20 : 6;
+  ctx.lineCap     = "round";
+  ctx.moveTo(e.offsetX, e.offsetY);
+
+  // 👇 İNDİR BUTONU AKTİF
+  drawDownloadBtn.disabled = false;
+  drawDownloadBtn.classList.add("active");
+});
+
+canvas.addEventListener("pointermove", e=>{
+  if(!drawing) return;
+  ctx.lineTo(e.offsetX, e.offsetY);
+  ctx.stroke();
+});
+
+canvas.addEventListener("pointerup", ()=> drawing=false);
+canvas.addEventListener("pointerleave", ()=> drawing=false);
+
+/* ARAÇLAR */
+document.getElementById("eraserBtn").onclick = ()=>{
+  isEraser = true;
+};
+
+/* İNDİR */
+document.getElementById("drawDownloadBtn").onclick = ()=>{
+  const link = document.createElement("a");
+  link.download = "resim.png";
+  link.href = canvas.toDataURL();
+  link.click();
+};
+
+/* KAPAT */
+document.getElementById("drawCloseBtn").onclick = ()=>{
+  location.reload(); // ya da page4'e dönüş
+};
+
+const palette = document.getElementById("colorPalette");
+
+document.querySelectorAll(".color-dot").forEach(btn=>{
+  btn.onclick = ()=>{
+    currentColor = btn.dataset.color;
+
+    // 🎯 net geçiş
+    isEraser = false;
+    ctx.strokeStyle = currentColor;
+
+    // paleti kapat
+    palette.style.display = "none";
+  };
+});
+
+document.getElementById("penBtn").onclick = ()=>{
+  isEraser = false;
+  ctx.strokeStyle = currentColor;  // 🎯 garanti
+  palette.style.display = "flex";
+};
+
+document.getElementById("skipCloseBtn").onclick = ()=>{
+  location.reload(); 
+};
+
+</script>
+
+</body>
+</html>
