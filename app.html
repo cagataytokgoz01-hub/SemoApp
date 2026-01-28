@@ -1436,13 +1436,6 @@ function exitApp(){
     speechSynthesis.cancel();
   }
 
-  // 🔴 GERÇEK ÇIKIŞ
-  localStorage.removeItem("licensed");
-  localStorage.removeItem("childGender");
-
-  // 🔑 EKSTRA TEMİZLİK (çok önemli)
-  sessionStorage.removeItem("splashDone");
-
   window.location.replace("index.html");
 }
 
@@ -1472,6 +1465,7 @@ confirmExitModal.addEventListener("click", function(e){
 
 </body>
 </html>
+
 
 
 
