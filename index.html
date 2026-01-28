@@ -138,10 +138,6 @@ button{background:#d4a441;color:white;font-weight:bold;}
 
 <script type="module">
 
-  // 🔴 ACİL KURTARMA – GEÇİCİ
-localStorage.clear();
-sessionStorage.clear();
-
   function getOrCreateDeviceId(){
   let id = localStorage.getItem("deviceId");
   if(!id){
@@ -151,18 +147,7 @@ sessionStorage.clear();
   return id;
 }
 
-  // Login ekranını garanti aç
- window.onload = () => {
-  const isLicensed = localStorage.getItem("licensed");
-
-  if (isLicensed === "true") {
-    // Daha önce giriş yapılmış → direkt uygulamaya geç
-    window.location.href = "./app.html";
-  } else {
-    // İlk kez ya da çıkış yapılmış
-    document.getElementById("loginScreen").style.display = "flex";
-  }
-};
+  document.getElementById("loginScreen").style.display = "flex";
 
   // Firebase SDK
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
@@ -256,6 +241,7 @@ error.style.display = "block";
 
 </body>
 </html>
+
 
 
 
