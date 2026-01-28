@@ -1101,6 +1101,12 @@ button.danger{
 
 <body>
 
+  <script>
+  if (localStorage.getItem("licensed") !== "true") {
+    window.location.replace("/SemoApp/index.html");
+  }
+</script>
+
 <!-- SPLASH -->
 <div id="splash">
   <img src="images/logo.png">
@@ -1426,21 +1432,7 @@ parentModal.addEventListener("click", function(e){
   }
 
 });
-
-async function exitApp(){
-  const licenseCode = localStorage.getItem("licenseCode");
-  const deviceId = localStorage.getItem("deviceId");
-
-  if (licenseCode && deviceId) {
-    const ref = doc(db, "licenses", licenseCode);
-
-    // cihazı lisansdan düşür
-    await updateDoc(ref, {
-      [`devices.${deviceId}`]: deleteField()
-    });
-  }
-
-  // lokal temizleme
+function exitApp(){
   localStorage.removeItem("licensed");
   localStorage.removeItem("licenseCode");
   localStorage.removeItem("childGender");
@@ -1448,15 +1440,6 @@ async function exitApp(){
 
   window.location.href = "/SemoApp/index.html";
 }
-
-  import { 
-  getFirestore, 
-  doc, 
-  updateDoc 
-} from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
-  import { deleteField } 
-from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
-
 
 // 🚪 ÇIKIŞ ONAY MODALI
 function openExitConfirm(){
@@ -1489,3 +1472,4 @@ confirmExitModal.addEventListener("click", function(e){
 
 </body>
 </html>
+
