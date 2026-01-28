@@ -162,7 +162,7 @@ button{background:#d4a441;color:white;font-weight:bold;}
 
   // Firebase SDK
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-  import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+  import { getFirestore, doc, getDoc, updateDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
   // 🔑 Firebase config (seninki)
   const firebaseConfig = {
@@ -236,11 +236,7 @@ if (deviceCount < data.maxDevices) {
 error.textContent =
   "Bu lisans başka bir cihazda kullanılıyor.";
 error.style.display = "block";
-
-      } else {
-        error.textContent = "Giriş kodu hatalı";
-        error.style.display = "block";
-      }
+      
     } catch (e) {
       console.error(e);
       error.textContent = "Bağlantı hatası";
@@ -251,3 +247,4 @@ error.style.display = "block";
 
 </body>
 </html>
+
