@@ -138,6 +138,10 @@ button{background:#d4a441;color:white;font-weight:bold;}
 
 <script type="module">
 
+  // 🔴 ACİL KURTARMA – GEÇİCİ
+localStorage.clear();
+sessionStorage.clear();
+
   function getOrCreateDeviceId(){
   let id = localStorage.getItem("deviceId");
   if(!id){
@@ -252,6 +256,7 @@ error.style.display = "block";
 
 </body>
 </html>
+
 
 
 
