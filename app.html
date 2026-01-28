@@ -1256,6 +1256,7 @@ if (licenseCode) {
 }
   
 const splash = document.getElementById("splash");
+const genderOverlay = document.getElementById("genderOverlay");
 
 if(sessionStorage.getItem("splashDone")){
   splash.style.display = "none";
@@ -1394,8 +1395,6 @@ setInterval(() => {
   localStorage.setItem("dailyMinutes", dailyMinutes);
 }, 60000);
 
-const genderOverlay = document.getElementById("genderOverlay");
-
 function setGender(gender){
   localStorage.setItem("childGender", gender);
   genderOverlay.style.display = "none";
@@ -1472,4 +1471,5 @@ confirmExitModal.addEventListener("click", function(e){
 
 </body>
 </html>
+
 
