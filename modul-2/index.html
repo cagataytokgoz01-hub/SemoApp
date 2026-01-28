@@ -119,7 +119,7 @@ body{
 
 <body>
 
-  <a id="backBtn" href="../index.html" aria-label="Geri">
+  <a id="backBtn" href="../app.html" aria-label="Geri">
   <img src="images/geri.png" alt="Geri">
 </a>
 
@@ -141,6 +141,9 @@ body{
 </div>
 
 <script>
+if (localStorage.getItem("licenseOK") === "true") {
+  window.location.href = "app.html";
+}
 
 const nefesAlSound   = new Audio("sounds/hava_iceri.mp3");
 const nefesVerSound  = new Audio("sounds/hava_disari.mp3");
@@ -220,3 +223,4 @@ document.getElementById("stopBtn").addEventListener("click", stopAnimation);
 
 </body>
 </html>
+
