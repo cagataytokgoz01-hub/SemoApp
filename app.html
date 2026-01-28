@@ -1248,11 +1248,7 @@ button.danger{
 if (licenseCode) {
   document.getElementById("licenseInfo").textContent = licenseCode;
 }
-
-if (!localStorage.getItem("licensed")) {
-  window.location.replace("/SemoApp/index.html");
-}
-
+  
 const splash = document.getElementById("splash");
 
 if(sessionStorage.getItem("splashDone")){
@@ -1477,6 +1473,7 @@ confirmExitModal.addEventListener("click", function(e){
 
 </body>
 </html>
+
 
 
 
