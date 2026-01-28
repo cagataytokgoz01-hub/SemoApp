@@ -1100,6 +1100,31 @@ button.danger{
 </head>
 
 <body>
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+const firebaseConfig = { /* seninki */ };
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+
+const myDeviceId = localStorage.getItem("deviceId");
+const licenseCode = localStorage.getItem("licenseCode");
+
+if (!myDeviceId || !licenseCode) {
+  window.location.replace("/SemoApp/index.html");
+}
+
+const ref = doc(db, "licenses", licenseCode);
+const snap = await getDoc(ref);
+
+if (!snap.exists() || snap.data().activeDevice !== myDeviceId) {
+  // 🔥 başka cihazdan giriş yapılmış → düş
+  localStorage.clear();
+  sessionStorage.clear();
+  window.location.replace("/SemoApp/index.html");
+}
+</script>
 
   <script>
   if (localStorage.getItem("licensed") !== "true") {
@@ -1431,13 +1456,19 @@ parentModal.addEventListener("click", function(e){
   }
 
 });
-function exitApp(){
-  localStorage.removeItem("licensed");
-  localStorage.removeItem("licenseCode");
-  localStorage.removeItem("childGender");
-  sessionStorage.clear();
+async function exitApp(){
+  const licenseCode = localStorage.getItem("licenseCode");
 
-  window.location.href = "/SemoApp/index.html";
+  if (licenseCode) {
+    const ref = doc(db, "licenses", licenseCode);
+    await updateDoc(ref, {
+      activeDevice: null
+    });
+  }
+
+  localStorage.clear();
+  sessionStorage.clear();
+  window.location.replace("/SemoApp/index.html");
 }
 
 // 🚪 ÇIKIŞ ONAY MODALI
@@ -1471,5 +1502,6 @@ confirmExitModal.addEventListener("click", function(e){
 
 </body>
 </html>
+
 
 
