@@ -1436,7 +1436,7 @@ function exitApp(){
     speechSynthesis.cancel();
   }
 
-  window.location.replace("index.html");
+  window.location.replace("/SemoApp/index.html");
 }
 
 // 🚪 ÇIKIŞ ONAY MODALI
@@ -1449,8 +1449,13 @@ function closeExitConfirm(){
 }
 
 function confirmExit(){
-  closeExitConfirm();
-  exitApp(); // 🔑 az önce çalışır hale getirdiğimiz FİNAL çıkış
+  // modalı KESİN kapat
+  document.getElementById("confirmExitModal").classList.remove("active");
+
+  // çıkışı biraz gecikmeli yap (Safari fix)
+  setTimeout(() => {
+    exitApp();
+  }, 50);
 }
 
 // arka plana basınca kapansın
@@ -1465,6 +1470,7 @@ confirmExitModal.addEventListener("click", function(e){
 
 </body>
 </html>
+
 
 
 
