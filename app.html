@@ -3,248 +3,1489 @@
 <head>
 <base href="/SemoApp/">
 
-<link rel="manifest" href="/SemoApp/manifest.json">
-<link rel="apple-touch-icon" href="/icons/icon-192.png">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta charset="UTF-8">
+<title>SemoApp</title>
+<link rel="manifest" href="manifest.json">
+
+<!-- iOS -->
+<link rel="apple-touch-icon" href="icons/icon-192.png">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
-<meta name="theme-color" content="#ffffff">
 
-<meta charset="UTF-8">
-<title>Semo</title>
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;700&display=swap" rel="stylesheet">
+</head>
 <style>
-body,html{margin:0;padding:0;width:100%;height:100%;font-family:sans-serif;}
-.screen{display:none;width:100%;height:100%;align-items:center;justify-content:center;flex-direction:column;}
-#license{background:#fff2c7;}
-#splash{background:#8fd3f4;}
-#gender{background:#ffd6e8;}
-#home{background:#c8f7c5;}
-input,button{font-size:18px;padding:12px;border-radius:12px;border:none;}
-button{background:#d4a441;color:white;font-weight:bold;}
+html, body {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  height: 100%;
+  overscroll-behavior: none;
+  touch-action: manipulation;
+}
+
+body {
+  background: #ffffff;
+  font-family:'Poppins', system-ui, -apple-system, sans-serif;
+  overflow: hidden;
+}
+
+/* =========================
+   🎬 SPLASH
+========================= */
+#splash{
+  position:fixed;
+  inset:0;
+  background:#fffdf6;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  z-index:2000;
+}
+
+#splash img{
+  width:80vw;
+  max-width:420px;
+  height:auto;
+  margin-bottom:8px;
+}
+
+.splash-credit{
+  margin-top:14px;
+  font-size:14px;
+  color:rgba(90,58,46,0.6);
+  font-family: 'Poppins', sans-serif;
+}
+
+.credit-name{
+  font-weight:700;
+}
+
+.splash-hide{
+  animation:splashUp 1s ease-in-out forwards;
+}
+
+@keyframes splashUp{
+  to{ transform:translateY(-80px); opacity:0; }
+}
+
+/* =========================
+   🧱 ANA YAPI
+========================= */
+.center-wrap{
+  width:100%;
+  height:100svh;
+  display:flex;
+  justify-content:center;
+}
+
+.menu-scroll{
+  width:100%;
+  max-width:380px;
+  padding:32px 16px calc(24px + env(safe-area-inset-bottom));
+  display:flex;
+  flex-direction:column;
+  gap:12px;
+  overflow-y:auto;
+  overscroll-behavior:contain;
+}
+
+/* MODÜL */
+.module-row{
+  width:100%;
+  display:flex;
+  align-items:center;
+  gap:10px;
+}
+
+.module{
+  flex:1;
+  padding:16px 18px;
+  overflow: visible;
+  position: relative;
+
+  color: var(--btnText);
+  text-decoration:none;
+
+  border-radius:18px;
+  font-size:17px;
+  font-weight:600;
+  font-family: 'Poppins', system-ui, -apple-system, sans-serif;
+
+  min-height:60px;
+  max-height:60px;
+
+  display:flex;
+  align-items:center;
+  gap:12px;
+
+  /* 🎨 ALTIN ÇERÇEVE MANTIĞI */
+  border:4px solid transparent;
+  background:
+  linear-gradient(180deg,
+    color-mix(in srgb, var(--btn1) 92%, white),
+    color-mix(in srgb, var(--btn2) 92%, black)
+  ) padding-box,
+  linear-gradient(135deg,
+    #f7d774,
+    #d4af37,
+    #b8962e
+  ) border-box;
+
+  /* ✨ premium hissi */
+  box-shadow:
+    0 10px 22px rgba(0,0,0,.18),
+    inset 0 1px 0 rgba(255,255,255,.35);
+
+  transition: transform .12s ease, box-shadow .12s ease, filter .12s ease;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* dokununca “kaliteli basma hissi” */
+.module:active{
+  transform: translateY(-6px) scale(1);
+  filter: brightness(.97);
+}
+
+/* klavye ile erişilebilirlik (profesyonel görünür) */
+.module:focus-visible{
+  outline:none;
+  box-shadow: var(--btnShadow), 0 0 0 4px var(--btnRing);
+}
+
+.module img{
+  width:88px;              /* 🔼 büyüttük */
+  height:88px;
+
+  position: relative;
+  z-index:2; 
+
+  padding:0;
+  border-radius:16px;
+
+  transform:
+    translateY(10px)        /* ⬇️ biraz aşağı */
+    translateX(-12px)       /* ⬅️ sola kay */
+    rotate(-12deg)         /* ↙️ sola yat */
+    scale(1.15);           /* biraz daha dolgun */
+
+  filter: drop-shadow(0 14px 18px rgba(0,0,0,.28));
+
+  transition: transform .25s ease;
+}
+
+.module:active img{
+  transform:
+    translateY(10px)
+    translateX(-4px)
+    rotate(-6deg)
+    scale(1.05);
+}
+
+/* =========================
+   🪟 POPUP
+========================= */
+.modal{
+  position:fixed;
+  inset:0;
+  background:rgba(0,0,0,.35);
+  display:none;
+  align-items:center;
+  justify-content:center;
+  z-index:1500;
+}
+
+.modal.active{ display:flex; }
+
+.modal-box{
+  background:#fff;
+  border-radius:18px;
+  padding:22px 20px;
+  max-width:320px;
+  width:90%;
+  text-align:center;
+  box-shadow:0 20px 40px rgba(0,0,0,.25);
+}
+
+.modal-box h3{
+  margin:0 0 10px 0;
+  font-size:18px;
+}
+
+.modal-box p{
+  margin:0;
+  font-size:15px;
+  color:#444;
+}
+
+.modal-box button{
+  margin-top:16px;
+  padding:10px;
+  width:100%;
+  border:none;
+  border-radius:12px;
+  background: #e0e0e0;
+  color: #333;
+  font-size:14px;
+  cursor:pointer;
+}
+
+/* POPUP iç düzen */
+.modal-body{
+  text-align:left;
+  font-size:15px;
+  color:#444;
+  line-height:1.35;
+}
+
+.modal-body .about-lead{
+  margin:0 0 12px 0;
+}
+
+.modal-body .about-subtitle{
+  font-weight:800;
+  margin:10px 0 8px 0;
+}
+
+.modal-body .app-item{
+  margin:0 0 10px 0;
+}
+
+.modal-body .app-item b{
+  display:block;
+  font-weight:800;
+  margin-bottom:2px;
+}
+
+:root{
+  --btn1:#29A9BC;      /* ana turkuaz */
+  --btn2:#0E7F92;      /* koyu turkuaz */
+  --btnText:#FFFFFF;
+  --btnShadow: 0 12px 26px rgba(14,127,146,.35);
+  --btnBorder: rgba(255,255,255,.35);
+  --btnRing: rgba(41,169,188,.28);
+}
+
+.btn-bugun{
+  --btn1:#FFD166;   /* sarı */
+  --btn2:#F4A261;
+}
+
+.btn-nefes{
+  --btn1:#8ECAE6;   /* açık mavi */
+  --btn2:#219EBC;
+}
+
+.btn-gevseme{
+  --btn1:#A8DADC;   /* mint */
+  --btn2:#2A9D8F;
+}
+
+.btn-bulut{
+  --btn1:#BDB2FF;   /* lila */
+  --btn2:#7B6CF6;
+}
+
+.btn-beden{
+  --btn1:#A7C7E7;   /* yumuşak mavi */
+  --btn2:#4A90E2;   /* derin mavi */
+}
+
+.btn-fark{
+  --btn1:#FFAFCC;   /* pembe */
+  --btn2:#FF6F91;
+}
+
+.btn-gunluk{
+  --btn1:#CDB4DB;   /* mor */
+  --btn2:#9B5DE5;
+}
+
+.info-main-btn{
+  width:100%;
+  padding:14px;
+  font-size:16px;
+  font-family:'Baloo 2','Comic Sans MS', cursive;
+
+  border-radius:16px;
+  border:3px solid #d4af37;
+
+  background: #fffdf6;
+  color:#7a5a12;
+
+  box-shadow:
+    0 6px 14px rgba(0,0,0,.12),
+    inset 0 1px 0 rgba(255,255,255,.6);
+
+  cursor:pointer;
+
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:10px;
+
+  transition: transform .12s ease, box-shadow .12s ease;
+}
+
+.info-main-btn:active{
+  transform: translateY(1px) scale(.99);
+  box-shadow:
+    0 4px 10px rgba(0,0,0,.15),
+    inset 0 1px 0 rgba(255,255,255,.4);
+}
+
+.info-main-btn img{
+  width:28px;
+  height:28px;
+}
+
+.info-main-btn{
+  flex:1;
+}
+
+.modal-box{
+  max-height:80vh;
+  overflow:hidden;
+}
+
+.modal-body{
+  max-height:60vh;
+  overflow-y:auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.about-author{
+  margin-top:10px;
+  text-align:center;
+}
+
+.about-author b{
+  display:block;
+  font-weight:800;
+  margin-bottom:2px;
+}
+
+.about-author span{
+  font-size:14px;
+  color:#666;
+}
+
+.about-center{
+  text-align:center;
+  margin-top:14px;
+}
+
+/* HAKKINDA – BUTON YAZI TİPİ */
+.modal-body,
+.modal-box h3,
+.about-author{
+  font-family: 'Baloo 2', 'Comic Sans MS', cursive;
+}
+
+@keyframes goldGlow {
+  0% {
+    box-shadow:
+      0 0 0 rgba(212,175,55,0),
+      0 10px 22px rgba(0,0,0,.18),
+      inset 0 1px 0 rgba(255,255,255,.35);
+  }
+
+  50% {
+    box-shadow:
+      0 0 14px rgba(212,175,55,.55),
+      0 10px 22px rgba(0,0,0,.22),
+      inset 0 1px 0 rgba(255,255,255,.45);
+  }
+
+  100% {
+    box-shadow:
+      0 0 0 rgba(212,175,55,0),
+      0 10px 22px rgba(0,0,0,.18),
+      inset 0 1px 0 rgba(255,255,255,.35);
+  }
+}
+
+.module.selected{
+  animation: goldGlow 1.8s ease-in-out infinite;
+}
+
+@keyframes iconFloat {
+  0%   { transform: translateY(-10px) scale(1.05); }
+  50%  { transform: translateY(-14px) scale(1.08); }
+  100% { transform: translateY(-10px) scale(1.05); }
+}
+
+.module{
+  pointer-events: auto;
+  will-change: transform;
+}
+
+.menu-scroll{
+  width:100%;
+  max-width:380px;
+  padding:24px 16px calc(24px + env(safe-area-inset-bottom));
+  display:flex;
+  flex-direction:column;
+  gap:12px;
+  overflow-y:auto;
+  padding-top: calc(84px + env(safe-area-inset-top));
+}
+
+.module.selected img{
+  filter:
+    drop-shadow(0 14px 18px rgba(212,175,55,.35))
+    brightness(1.05);
+}
+
+.module-row:last-child{
+  margin-top:28px;
+}
+
+.grid-rows{
+  display:grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap:14px;
+  width:100%;
+  box-sizing:border-box;
+}
+
+/* GRID KART DÜZELTMELERİ */
+.grid-rows .module{
+  min-height:72px;        /* tüm kartlar aynı boy */
+  padding:14px;
+  text-align:center;
+
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+
+  white-space: normal;   /* 🔑 yazı 2 satıra düşebilir */
+}
+
+.grid-rows .module img{
+  margin-bottom:4px;     /* ikon–yazı dengesi */
+}
+
+.grid-rows .module{
+  line-height:1.25;
+}
+
+.grid-rows .module{
+  min-height:60px;
+  max-height:none;   /* 🔴 BUNU AÇIYORUZ */
+  overflow: hidden; 
+}
+
+.grid-rows .module img{
+  transform:
+    translateY(4px)
+    translateX(0px)
+    rotate(-6deg)
+    scale(1.05);
+}
+
+.grid-rows .module{
+  flex-direction:column;      /* ikon üstte, yazı altta */
+  justify-content:center;
+  text-align:center;
+  padding:14px;
+}
+
+.grid-rows .module{
+  font-size:16px;             /* biraz küçült */
+}
+
+.grid-rows .module img{
+  transform:
+    translateY(6px)
+    translateX(-6px)
+    rotate(-8deg)
+    scale(1.08);
+}
+
+/* =========================
+   🟡 ÜST LOGO ALANI
+========================= */
+.top-header{
+  width:100%;
+  height:84px;                 /* üst boşluk miktarı */
+  display:flex;
+  align-items:center;
+  justify-content:center;
+
+  margin-bottom:12px;          /* kartlarla arasına nefes */
+}
+
+.top-header img{
+  height:88px;                 /* logo boyu */
+  width:auto;
+  object-fit:contain;
+}
+
+.top-icon{
+  height:48px;      /* ikon için ideal */
+  width:auto;
+}
+
+.top-header{
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 1000;
+
+  height: 84px;
+  padding-top: env(safe-area-inset-top);
+
+  display:flex;
+  align-items:center;
+  justify-content:center;
+
+  background:#ffffff;
+}
+
+.top-header{
+  border:4px solid transparent;
+
+  background:
+    linear-gradient(#fffdf6, #fffdf6) padding-box,
+    linear-gradient(135deg,
+      #f7d774,
+      #d4af37,
+      #b8962e
+    ) border-box;
+
+  box-shadow:
+    0 6px 14px rgba(0,0,0,.12),
+    inset 0 1px 0 rgba(255,255,255,.6);
+}
+
+.top-header{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:12px;
+}
+
+.session-time{
+  font-size:12px;
+  opacity:0.5;
+  color:#555;
+  white-space:nowrap;
+}
+
+.top-header{
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+
+  height: 84px;
+  padding-top: env(safe-area-inset-top);
+
+  display:flex;
+  align-items:center;
+  justify-content:center;
+
+  background:#fffdf6;
+  z-index:1000;
+  border-bottom: 1px solid rgba(0,0,0,.04);
+}
+
+/* 🦘 Kanguru TAM ORTA */
+.top-icon{
+  height:40px;
+}
+
+/* ⏱️ Süre – sağda, kapsül içinde */
+.session-time{
+  position:absolute;
+  right:16px;
+  top:50%;
+  transform: translateY(-50%);
+
+  font-size:12px;
+  color:#444;
+  opacity:0.85;
+
+  background:#ffffff;
+  padding:6px 10px;
+  border-radius:14px;
+
+  box-shadow:
+    0 2px 6px rgba(0,0,0,.08);
+
+  white-space:nowrap;
+}
+
+/* 🏠 Sol Home – sadece görsel */
+.home-icon{
+  position:absolute;
+  left:24px;
+  top:50%;
+  transform:translateY(-50%);
+
+  height:8px;
+  opacity:0.35;
+
+  pointer-events:none; /* kesinlikle tuş olmasın */
+}
+
+/* 🦘 Kanguru – merkez referans */
+.top-icon{
+  height:40px;
+}
+
+/* ⏱️ Sağ Süre – kapsül */
+.session-time{
+  position:absolute;
+  right:20px;
+  top:50%;
+  transform: translateY(-50%);
+
+  font-size:15px;
+  color:#444;
+  opacity:0.85;
+
+  background:#ffffff;
+  padding:8px 13px;
+  border-radius:18px;
+
+  box-shadow:0 2px 6px rgba(0,0,0,.08);
+  white-space:nowrap;
+  font-family:'Poppins', system-ui, -apple-system, sans-serif;
+
+}
+
+.top-header img.home-icon{
+  height:28px !important;
+  width:auto;
+}
+
+.menu-scroll{
+  margin-top: 10px;
+}
+
+.module{
+  position: relative;
+  display:flex;
+  align-items:center;
+  gap:12px;
+
+  min-height:60px;
+  padding:16px 18px;
+
+  font-family:'Poppins', system-ui, -apple-system, sans-serif;
+  font-size:17px;
+  font-weight:600;
+  color:var(--btnText);
+  text-decoration:none;
+
+  border-radius:18px;
+  border:2px solid rgba(255,255,255,.22);
+
+  background: linear-gradient(var(--btn1), var(--btn2));
+
+  box-shadow:
+    0 8px 18px rgba(0,0,0,.14),
+    inset 0 1px 0 rgba(255,255,255,.35);
+
+  transition:
+    transform .12s ease,
+    box-shadow .12s ease,
+    filter .12s ease;
+
+  -webkit-tap-highlight-color: transparent;
+}
+
+.module:active{
+  transform: translateY(1px) scale(.985);
+  filter: brightness(.98);
+  box-shadow:
+    0 6px 14px rgba(0,0,0,.12),
+    inset 0 2px 4px rgba(0,0,0,.12);
+}
+
+.module:focus-visible{
+  outline:none;
+  box-shadow:
+    0 0 0 4px rgba(41,169,188,.28),
+    0 8px 18px rgba(0,0,0,.14);
+}
+
+.module-title-center{
+  flex: 1;
+  text-align: center;
+}
+
+.icon-center{
+  transform:
+    translateY(12px)
+    translateX(8px)   /* 🔹 merkeze yaklaştırıldı */
+    rotate(-12deg)
+    scale(1.15);
+}
+
+.btn-bugun .icon-center{
+  transform:
+    translateY(4px)
+    translateX(2px)
+    rotate(-12deg)
+    scale(1.15) !important;
+}
+
+.gender-overlay{
+  position:fixed;
+  inset:0;
+  background:#fffdf6;
+  display:none;
+  align-items:center;
+  justify-content:center;
+  z-index:99999;
+}
+
+.gender-box{
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  gap:32px;
+}
+
+.gender-title{
+  font-size:20px;
+  font-weight:600;
+}
+
+.gender-options{
+  display:flex;
+  gap:48px;
+}
+
+.gender-option{
+  width:160px;
+  cursor:pointer;
+  transition:transform .2s ease;
+}
+
+.gender-option:active{
+  transform:scale(.95);
+}
+
+.gender-box{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+
+.gender-options{
+  display:flex;
+  gap:16px;
+}
+
+.gender-frame{
+  width:38vw;          /* 🔑 ekrana göre */
+  max-width:160px;
+  aspect-ratio:3 / 4; /* oran korunur */
+
+  border-radius:22px;
+  border:3px solid #C9A441;
+  box-sizing:border-box;
+
+  display:flex;
+  align-items:center;
+  justify-content:center;
+
+  cursor:pointer;
+  background:#fff;
+}
+
+.gender-frame img{
+  width:98%;
+  height:98%;
+  object-fit:contain;
+  display:block;
+  transform: translateY(6px);
+}
+
+.gender-frame:active{
+  transform:scale(.96);
+}
+
+#home{
+  display:none;
+}
+
+#home{
+  width:100%;
+  justify-content:center;
+  display:none; /* 🔑 başlangıçta KAPALI */
+}
+
+.parent-btn{
+  position:absolute;
+  right:20px;
+  top:50%;
+  transform:translateY(-50%);
+  height:8px;
+  cursor:pointer;
+  opacity:.85;
+}
+.parent-btn:active{
+  transform:translateY(-50%) scale(.95);
+}
+
+.parent-row{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:8px;
+  margin:14px 0;
+  font-size:14px;
+}
+
+.parent-row b{
+  min-width:48px;
+  text-align:center;
+}
+
+button.danger{
+  background:#ff6b6b;
+  color:#fff;
+  border:none;
+  padding:6px 10px;
+  border-radius:10px;
+  font-size:12px;
+}
+
+.top-header img.parent-btn{
+  height:28px;
+}
+
+/* 🔒 CİNSİYET SATIRI – TAM YATAY HİZA (KESİN) */
+#parentModal .gender-row{
+  display:flex;
+  align-items:center;      /* 🔑 AYNI YATAY ÇİZGİ */
+  gap:12px;
+}
+
+#parentModal .gender-row span{
+  flex:1;                  /* sola yaslı başlık */
+}
+
+#parentModal .gender-row b{
+  min-width:64px;
+  text-align:center;
+  line-height:28px;        /* 🔑 BUTON YÜKSEKLİĞİYLE AYNI */
+}
+
+#parentModal .gender-row button{
+  height:28px;             /* 🔑 METİNLE AYNI HAT */
+  padding:0 10px;
+  display:flex;
+  align-items:center;
+}
+
+/* 🔥 GERÇEK DÜZELTME – SADECE CİNSİYET SATIRI */
+#parentModal .gender-row{
+  justify-content:flex-start; /* ❌ space-between iptal */
+  gap:16px;
+}
+
+#parentModal .gender-row span{
+  flex:1;
+}
+
+#parentModal .gender-row b{
+  min-width:64px;
+  text-align:center;
+  line-height:28px;
+}
+
+#parentModal .gender-row button{
+  height:28px;
+  display:flex;
+  align-items:center;
+}
+
+/* ✅ EBEVEYN PORTALI – SATIRLAR TAM HİZA (OVERRIDE) */
+#parentModal .parent-row{
+  display: grid !important;
+  grid-template-columns: 1fr 80px auto;
+  align-items: center !important;
+  column-gap: 14px;
+}
+
+#parentModal .parent-row:not(.has-button){
+  grid-template-columns: 1fr 80px;
+}
+
+/* Sol başlık */
+#parentModal .parent-row span{
+  justify-self: start;
+}
+
+/* Orta değer (Erkek / 14 dk) – butonla aynı hatta */
+#parentModal .parent-row b{
+  justify-self: end;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  line-height: 1; /* line-height hilesi yok, flex merkezliyor */
+}
+
+/* Sağ buton – padding/height net */
+#parentModal .parent-row button.danger{
+  height: 28px;
+  padding: 0 12px;      /* 🔑 eski padding’i ezer */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+#parentModal .parent-row button{
+  width:auto;        /* 🔑 ALT SATIRA DÜŞMENİN TEK SEBEBİ BUYDU */
+}
+#parentModal .parent-row button.danger{
+  width: auto !important;
+  max-width: fit-content !important;
+  align-self: center !important;
+}
+
+#parentModal .parent-row button.danger{
+  margin-top: -10px;   /* yukarı alır */
+}
+/* 🔒 EBEVEYN PORTALI – KAPAT BUTONU */
+#parentModal .close-btn{
+  margin-top: 18px;
+  width: 100%;
+  height: 40px;
+
+  border: none;
+  border-radius: 12px;
+
+  background: #e0e0e0;
+  color: #333;
+  font-size: 14px;
+  font-weight: 600;
+
+  cursor: pointer;
+}
+
+#parentModal .close-btn:active{
+  transform: scale(0.98);
+}
+
+/* ✅ Parent portalındaki alt Sıfırla butonu: küçük ve solda */
+#parentModal .reset-time{
+  width:auto !important;          /* full-width'i kır */
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+
+  height:28px;
+  padding:0 10px;                 /* küçük */
+  font-size:12px;
+  border-radius:10px;
+
+  margin-top:8px;                 /* günlük sürenin altına yakın */
+  margin-left:0;                  /* solda */
+  align-self:flex-start;          /* modal içi solda kalsın */
+}
+
+/* İstersen dokunma alanı büyüsün ama buton küçük kalsın */
+#parentModal .reset-time{
+  box-shadow:0 2px 6px rgba(0,0,0,.10);
+}
+
+#parentModal .modal-box{
+  text-align:left;
+}
+
+#parentModal .modal-box h3{
+  text-align:center; /* başlık ortada kalsın */
+}
+
+/* ℹ️ INFO – parent ile birebir */
+/* info butonu – parent ile aynı */
+.top-header .info-top-btn {
+  position: absolute;
+  right: 60px; /* SOLA AL */
+  top: 45%;
+  transform: translateY(-50%); /* Aşağı yukarı ortalamayı koru */
+  background: transparent; /* Arka planı tamamen şeffaf yap */
+  border: none;
+  padding: 0;
+  box-shadow: none;
+  cursor: pointer;
+  height: 28px; /* Ebeveyn butonuyla aynı boyutta */
+}
+
+.top-header .info-top-btn img {
+  height: 40px; /* Görseli de aynı boyuta getir */
+  width: auto;
+}
+
+.top-header .info-btn:active{
+  transform:translateY(-50%) scale(.95);
+}
+.top-header img.info-btn{
+  height:24px;
+  width:auto;
+}
+
+.top-header .info-top-btn {
+  background: transparent !important;
+  box-shadow: none !important;
+  border: none !important;
+}
+
+#infoModal .close-btn {
+  color:#333;
+  background-color:#e0e0e0;
+  
+}
+
+/* ✅ Onay modalı butonları */
+.confirm-actions{
+  display:flex;
+  gap:10px;
+  margin-top:16px;
+}
+
+.confirm-actions button{
+  width:100%;
+  margin-top:0;          /* modal-box button margin-top’u ez */
+  border-radius:12px;
+  padding:10px 12px;
+  font-size:14px;
+  cursor:pointer;
+}
+
+.confirm-actions .btn-cancel{
+  background:#e0e0e0;
+  color:#333;
+}
+
+.confirm-actions .btn-ok{
+  background:#ff6b6b;
+  color:#fff;
+}
+
+#modal .modal-box > button{
+  font-weight: 600;
+}
+
+/* 🚪 EBEVEYN PORTALI – ÇIKIŞ BUTONU */
+#parentModal .exit-btn{
+  width:100%;
+  height:36px;
+  margin-top:10px;
+
+  background:#ff6b6b;
+  color:#fff;
+
+  border-radius:12px;
+  font-size:14px;
+  font-weight:600;
+}
+
+#parentModal .exit-btn:active{
+  transform: scale(.98);
+}
+
 </style>
 </head>
 
 <body>
-<div id="loginScreen" style="
-  display:none;
-  min-height:100svh;
-  padding:24px 16px;              /* 🔑 kenarlardan nefes */
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  background:#fffdf6;             /* 🔑 üst header ile AYNI */
-  font-family:'Poppins', system-ui, -apple-system, sans-serif;
-  box-sizing:border-box;
-">
 
-  <div style="
-    background:white;
-    padding:32px 28px;
-    border-radius:16px;
-    width:320px;
-    box-shadow:0 20px 40px rgba(0,0,0,.12);
-    text-align:center;
-  ">
+<!-- SPLASH -->
+<div id="splash">
+  <img src="images/logo.png">
+ <div class="splash-credit">
+  from <span class="credit-name">Çağatay Tokgöz</span>
+</div>
+</div>
 
-    <!-- LOGO / BAŞLIK -->
-    <div style="
-      font-size:22px;
-      font-weight:600;
-      margin-bottom:8px;
-      color:#2f3a5a;
-    ">
-      SemoApp Uygulama Girişi
-    </div>
+<div id="genderOverlay" class="gender-overlay">
+  <div class="gender-box">
 
-    <div style="
-      font-size:14px;
-      color:#6b7280;
-      margin-bottom:24px;
-    ">
-      Lisans kodunu giriniz
-    </div>
+    <div class="gender-options">
+      <div class="gender-frame" onclick="setGender('k')">
+  <img src="images/girl.png" alt="Kız">
+</div>
 
-    <!-- INPUT -->
-    <input
-      id="licenseInput"
-      type="text"
-      placeholder="Giriş Kodu"
-      style="
-        width:100%;
-        padding:12px;
-        font-size:16px;
-        border-radius:10px;
-        border:1px solid #d1d5db;
-        outline:none;
-        box-sizing:border-box;
-      "
-      onkeydown="if(event.key==='Enter'){checkLicense()}"
-    />
-
-    <!-- BUTTON -->
-    <button
-      onclick="checkLicense()"
-      style="
-        width:100%;
-        margin-top:16px;
-        padding:12px;
-        font-size:16px;
-        border:none;
-        border-radius:10px;
-        background:#4f46e5;
-        color:white;
-        cursor:pointer;
-      "
-    >
-      Giriş Yap
-    </button>
-
-    <!-- ERROR -->
-    <div
-      id="errorText"
-      style="
-        margin-top:12px;
-        font-size:14px;
-        color:#dc2626;
-        display:none;
-      "
-    >
-      Giriş kodu hatalı
+<div class="gender-frame" onclick="setGender('e')">
+  <img src="images/boy.png" alt="Erkek">
+</div>
     </div>
 
   </div>
 </div>
 
-<div id="splash" class="screen">
-  <h1>SPLASH</h1>
+<!-- ANA MENÜ -->
+<div class="center-wrap" id="home">
+  <div class="menu-scroll">
+
+<!-- ÜST ICON ALANI -->
+<div class="top-header">
+  <img src="images/home.png" class="home-icon">
+
+  <img src="images/icon.png" class="top-icon" alt="SemoApp">
+
+  <button class="info-top-btn" onclick="openInfo()">
+  <img src="images/info.png" alt="Bilgi">
+</button>
+
+  <!-- 👨‍👩‍👧 EBEVEYN -->
+  <img 
+    src="images/ebeveyn.png" 
+    class="parent-btn" 
+    onclick="openParentPanel()">
 </div>
 
-<div id="gender" class="screen">
-  <h2>Cinsiyet</h2>
-  <button onclick="selectGender('k')">Kız</button>
-  <button onclick="selectGender('e')">Erkek</button>
+   <!-- 1. UYGULAMA – TAM SATIR -->
+<div class="module-row">
+<a class="module btn-bugun" href="modul-1/index.html">
+    <img src="images/but_bugun.png" class="icon-center">
+<span class="module-title-center">Nasıl Hissediyorsun?</span>
+  </a>
 </div>
 
-<div id="home" class="screen">
-  <h2>Ana Sayfa</h2>
+<!-- 2’Lİ GRID -->
+<div class="grid-rows">
 
-  <button onclick="openApp()">Uygulamayı Aç</button>
+  <a class="module btn-nefes" href="modul-2/index.html">
+    <img src="images/but_nefes.png"> Nefes Uygulaması
+  </a>
 
-  <br><br>
+  <a class="module btn-gevseme" href="modul-3/index.html">
+    <img src="images/but_gevseme.png"> Gevşeme Uygulaması
+  </a>
 
-  <button onclick="logout()">Çıkış</button>
+  <a class="module btn-bulut" href="modul-4/index.html">
+    <img src="images/but_bulut.png"> Duygu Bulutları
+  </a>
+
+  <a class="module btn-beden" href="modul-5/index.html">
+    <img src="images/but_beden.png"> Duygum Nerede?
+  </a>
+
+  <a class="module btn-fark" href="modul-6/index.html">
+    <img src="images/but_farkindalik.png"> Duygu Farkındalığı
+  </a>
+
+  <a class="module btn-gunluk" href="modul-7/index.html">
+    <img src="images/but_gun.png"> Duygu Günlüğü
+  </a>
+
 </div>
 
-<script type="module">
+<!-- POPUP -->
+<div class="modal" id="modal">
+  <div class="modal-box">
+    <h3 id="modalTitle"></h3>
+<div id="modalBody" class="modal-body"></div>
+    <button onclick="closeModal()">Kapat</button>
+  </div>
+</div>
 
-  function getOrCreateDeviceId(){
-  let id = localStorage.getItem("deviceId");
-  if(!id){
-    id = "dev_" + crypto.randomUUID();
-    localStorage.setItem("deviceId", id);
+<div class="modal" id="parentModal">
+  <div class="modal-box">
+
+    <h3>Ebeveyn Portalı</h3>
+
+    <!-- 👧👦 CİNSİYET -->
+    <div class="parent-row">
+      <span>Cinsiyet</span>
+      <b id="parentGender">-</b>
+    </div>
+
+    <!-- ⏱️ GÜNLÜK KULLANIM -->
+    <div class="parent-row">
+      <span>Günlük Kullanım Süresi</span>
+      <b id="parentTime">20 dk</b>
+    </div>
+
+    <div class="parent-row">
+  <span>Lisans Kodu</span>
+  <b id="licenseInfo"></b>
+</div>
+
+    <!-- 🚪 ÇIKIŞ -->
+<button class="danger exit-btn" onclick="openExitConfirm()">
+  Çıkış
+</button>
+
+    <!-- ⬇️ KAPAT -->
+    <button class="close-btn" onclick="closeParentPanel()">
+      Kapat
+    </button>
+
+  </div>
+</div>
+
+<!-- 🚪 ÇIKIŞ ONAY MODALI (DOĞRU YER) -->
+<div class="modal" id="confirmExitModal">
+  <div class="modal-box">
+    <h3>Emin misiniz?</h3>
+
+    <div class="confirm-actions">
+      <button class="btn-cancel" onclick="closeExitConfirm()">Hayır</button>
+      <button class="btn-ok" onclick="confirmExit()">Evet</button>
+    </div>
+  </div>
+</div>
+
+
+
+<script>
+
+  const licenseCode = localStorage.getItem("licenseCode");
+
+if (licenseCode) {
+  document.getElementById("licenseInfo").textContent = licenseCode;
+}
+  
+const splash = document.getElementById("splash");
+
+if(sessionStorage.getItem("splashDone")){
+  splash.style.display = "none";
+
+  if(localStorage.getItem("childGender")){
+    document.getElementById("home").style.display = "flex";
+  }else{
+    genderOverlay.style.display = "flex";
   }
-  return id;
+
+}else{
+
+  setTimeout(() => {
+    splash.classList.add("splash-hide");
+  }, 1500);
+
+  setTimeout(() => {
+    splash.style.display = "none";
+    sessionStorage.setItem("splashDone","1");
+
+    if(localStorage.getItem("childGender")){
+      document.getElementById("home").style.display = "flex";
+    }else{
+      genderOverlay.style.display = "flex";
+    }
+
+  }, 2600);
+
 }
 
-  // Login ekranını garanti aç
- window.onload = () => {
-  const isLicensed = localStorage.getItem("licensed");
-
-  if (isLicensed === "true") {
-    // Daha önce giriş yapılmış → direkt uygulamaya geç
-    window.location.href = "./app.html";
-  } else {
-    // İlk kez ya da çıkış yapılmış
-    document.getElementById("loginScreen").style.display = "flex";
+/* INFO POPUP METİNLERİ – SENİN VERDİKLERİN */
+const texts = {
+  bugun: {
+    title: "Nasıl Hissediyorsun?",
+    text: "Bu uygulama, çocuğun gün içindeki duygularını fark etmesine ve isimlendirmesine destek olur."
+  },
+  bulut: {
+    title: "Duygu Bulutları",
+    text: "Bu uygulama, çocuğun duyguların gelip geçici olabileceğini deneyim yoluyla fark etmesine destek olur."
+  },
+  nefes: {
+    title: "Nefes Boncuğu",
+    text: "Bu uygulama, çocuğun nefesine odaklanarak sakinleşmesine destek olur."
+  },
+  gevseme: {
+    title: "Gevşeme",
+    text: "Bu uygulama, bedensel gevşeme yoluyla çocuğun rahatlamasına ve güven duygusuna destek olur."
+  },
+  fark: {
+    title: "Duygu Farkındalığı",
+    text: "Bu uygulama, çocuğun duygusunu tanımasına, ihtiyacını fark etmesine ve duygusuyla ilgili seçenekleri keşfetmesine destek olur."
+  },
+  gunluk: {
+    title: "Duygu Günlüğü",
+    text: "Bu uygulama, çocuğun gün içinde yaşadığı duyguları fark etmesine ve isterse bu duygularla ilgili bir anıyı ifade etmesine destek olur."
   }
 };
 
-  // Firebase SDK
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-  import { getFirestore, doc, getDoc, updateDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+const modal = document.getElementById("modal");
+const modalTitle = document.getElementById("modalTitle");
+const modalBody = document.getElementById("modalBody");
 
-  // 🔑 Firebase config (seninki)
-  const firebaseConfig = {
-    apiKey: "AIzaSyBNgFdfhoV5SXx9BAVkFdIen1ckPidaj-Q",
-    authDomain: "semoapp-38259.firebaseapp.com",
-    projectId: "semoapp-38259",
-    storageBucket: "semoapp-38259.firebasestorage.app",
-    messagingSenderId: "877067367084",
-    appId: "1:877067367084:web:d826c6e7a80d77e58e2509"
+document.querySelectorAll(".info-btn").forEach(btn=>{
+  btn.onclick = ()=>{
+    const key = btn.dataset.app;
+    modalTitle.textContent = texts[key].title;
+    modalText.textContent = texts[key].text;
+    modal.classList.add("active");
   };
+});
 
-  const app = initializeApp(firebaseConfig);
-  const db = getFirestore(app);
-
-  // 🔐 Lisans kontrolü
-  window.checkLicense = async function () {
-    const input = document.getElementById("licenseInput");
-    const error = document.getElementById("errorText");
-    const code = input.value.trim();
-
-    if (!code) {
-      error.textContent = "Kod giriniz";
-      error.style.display = "block";
-      return;
-    }
-
-    try {
-      const ref = doc(db, "licenses", code);
-      const snap = await getDoc(ref);
-    if (!snap.exists()) {
-  error.textContent = "Kod bulunamadı";
-  error.style.display = "block";
-  return;
+function closeModal(){
+  modal.classList.remove("active");
 }
 
-const data = snap.data();
+function openInfo(){
+  modalTitle.textContent = " Uygulama Hakkında";
 
-if (!data.active) {
-  error.textContent = "Bu lisans pasif";
-  error.style.display = "block";
-  return;
+  modalBody.innerHTML = `
+    <p class="about-lead">
+      Bu uygulama, çocukların duygularını fark etmelerine, bedenlerinde hissettiklerini tanımalarına ve kendilerini güvenli yollarla ifade etmelerine eşlik etmek için hazırlanmış bir duygusal farkındalık uygulamasıdır.
+    </p>
+
+    <div class="app-item"><b>Nasıl Hissediyorsun?</b>Çocuğun o anki duygusunu fark etmesine ve isimlendirmesine destek olur.</div>
+    <div class="app-item"><b>Nefes Uygulaması</b>Nefesine odaklanarak sakinleşmesine ve bedenini düzenlemesine yardımcı olur.</div>
+    <div class="app-item"><b>Gevşeme Uygulaması</b>Bedensel gevşeme yoluyla güven ve rahatlama hissini destekler.</div>
+    <div class="app-item"><b>Duygu Bulutları</b>Duyguların gelip geçici olabileceğini deneyim yoluyla fark etmesine yardımcı olur.</div>
+    <div class="app-item"><b>Duygum Nerede?</b>Çocuğun duygusunu bedeninde nerede hissettiğini keşfetmesini sağlar.</div>
+    <div class="app-item"><b>Duygu Farkındalığı</b>Duyguyu tanıma, ihtiyacı fark etme ve seçenekleri keşfetmeye destek olur.</div>
+    <div class="app-item"><b>Duygu Günlüğü</b>Çocuğun yaşadığı duyguları ifade etmesine ve isterse kaydetmesine alan açar.</div>
+
+  <div class="about-center">
+  <div class="about-author">
+    <b>Çağatay Tokgöz</b>
+    <span>Psikolojik Danışman</span>
+  </div>
+</div>
+
+  `;
+
+  modal.classList.add("active");
 }
 
-const deviceId = getOrCreateDeviceId();
-const devices = data.devices || {};
-const deviceCount = Object.keys(devices).length;
+modal.addEventListener("click", e=>{
+  if(e.target === modal){
+    closeModal();
+  }
+});
 
-// cihaz zaten kayıtlıysa → gir
-if (devices[deviceId]) {
-  localStorage.setItem("licensed", "true");
-  localStorage.setItem("licenseCode", code);
-  window.location.href = "./app.html";
-  return;
-}
+document.querySelectorAll(".module").forEach(btn=>{
+  btn.addEventListener("click", ()=>{
+    document.querySelectorAll(".module")
+      .forEach(m=> m.classList.remove("selected"));
 
-// yeni cihaz ama hak var mı?
-if (deviceCount < data.maxDevices) {
-  devices[deviceId] = true;
-
-  await updateDoc(ref, {
-    devices: devices
+    btn.classList.add("selected");
   });
+});
 
-  localStorage.setItem("licensed", "true");
-  localStorage.setItem("licenseCode", code);
-  window.location.href = "./app.html";
-  return;
+// bugün (YYYY-MM-DD)
+const today = new Date().toISOString().slice(0, 10);
+
+// localStorage'dan oku
+let savedDate = localStorage.getItem("dailyDate");
+let dailyMinutes = parseInt(localStorage.getItem("dailyMinutes")) || 0;
+
+// gün değiştiyse sıfırla
+if (savedDate !== today) {
+  dailyMinutes = 0;
+  localStorage.setItem("dailyDate", today);
+  localStorage.setItem("dailyMinutes", dailyMinutes);
 }
 
-// buraya geldiyse → hak dolu
-error.textContent =
-  "Bu lisans başka bir cihazda kullanılıyor.";
-error.style.display = "block";
-      
-    } catch (e) {
-      console.error(e);
-      error.textContent = "Bağlantı hatası";
-      error.style.display = "block";
-    }
-  };
+// her 1 dakikada bir artır
+setInterval(() => {
+  dailyMinutes++;
+  localStorage.setItem("dailyMinutes", dailyMinutes);
+}, 60000);
+
+const genderOverlay = document.getElementById("genderOverlay");
+
+function setGender(gender){
+  localStorage.setItem("childGender", gender);
+  genderOverlay.style.display = "none";
+  const home = document.getElementById("home");
+
+home.style.display = "flex";
+home.style.justifyContent = "center";
+}
+
+function openParentPanel(){
+  document.getElementById("parentModal").classList.add("active");
+
+  // süreyi göster
+  document.getElementById("parentTime").textContent =
+    dailyMinutes + " dk";
+
+  // cinsiyeti göster
+  const g = localStorage.getItem("childGender");
+  document.getElementById("parentGender").textContent =
+    g === "e" ? "Erkek" :
+    g === "k" ? "Kız" : "-";
+}
+
+function closeParentPanel(){
+  document.getElementById("parentModal").classList.remove("active");
+}
+
+// Ebeveyn modal – arka plana tıklanınca kapat
+const parentModal = document.getElementById("parentModal");
+
+parentModal.addEventListener("click", function(e){
+  if(e.target === parentModal){
+    closeParentPanel();
+  }
+
+});
+
+async function exitApp(){
+  const licenseCode = localStorage.getItem("licenseCode");
+  const deviceId = localStorage.getItem("deviceId");
+
+  if (licenseCode && deviceId) {
+    const ref = doc(db, "licenses", licenseCode);
+
+    // cihazı lisansdan düşür
+    await updateDoc(ref, {
+      [`devices.${deviceId}`]: deleteField()
+    });
+  }
+
+  // lokal temizleme
+  localStorage.removeItem("licensed");
+  localStorage.removeItem("licenseCode");
+  localStorage.removeItem("childGender");
+  sessionStorage.clear();
+
+  window.location.href = "/SemoApp/index.html";
+}
+
+  import { 
+  getFirestore, 
+  doc, 
+  updateDoc 
+} from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+  import { deleteField } 
+from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+
+// 🚪 ÇIKIŞ ONAY MODALI
+function openExitConfirm(){
+  document.getElementById("confirmExitModal").classList.add("active");
+}
+
+function closeExitConfirm(){
+  document.getElementById("confirmExitModal").classList.remove("active");
+}
+
+function confirmExit(){
+  // modalı KESİN kapat
+  document.getElementById("confirmExitModal").classList.remove("active");
+
+  // çıkışı biraz gecikmeli yap (Safari fix)
+  setTimeout(() => {
+    exitApp();
+  }, 50);
+}
+
+// arka plana basınca kapansın
+const confirmExitModal = document.getElementById("confirmExitModal");
+confirmExitModal.addEventListener("click", function(e){
+  if(e.target === confirmExitModal){
+    closeExitConfirm();
+  }
+});
+
 </script>
 
 </body>
 </html>
-
