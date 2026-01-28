@@ -201,24 +201,18 @@ if (!data.active) {
 }
 
 const deviceId = getOrCreateDeviceId();
-const devices = data.devices || {};
-const deviceCount = Object.keys(devices).length;
+const deviceId = getOrCreateDeviceId();
 
-// cihaz zaten kayıtlıysa → gir
-if (devices[deviceId]) {
-  localStorage.setItem("licensed", "true");
-  localStorage.setItem("licenseCode", code);
-  window.location.href = "./app.html";
-  return;
-}
+// 🔥 KURAL: yeni giriş her zaman kazanır
+await updateDoc(ref, {
+  activeDevice: deviceId,
+  lastLogin: Date.now()
+});
 
-// yeni cihaz ama hak var mı?
-if (deviceCount < data.maxDevices) {
-  devices[deviceId] = true;
-
-  await updateDoc(ref, {
-    devices: devices
-  });
+localStorage.setItem("licensed", "true");
+localStorage.setItem("licenseCode", code);
+window.location.href = "./app.html";
+;
 
   localStorage.setItem("licensed", "true");
   localStorage.setItem("licenseCode", code);
@@ -241,6 +235,7 @@ error.style.display = "block";
 
 </body>
 </html>
+
 
 
 
