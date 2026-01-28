@@ -1,0 +1,368 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Duygu Farkındalığı</title>
+
+<style>
+html,body{
+  background: linear-gradient(#b7e2ff, #e9f7ff);
+  margin:0; padding:0; width:100%; height:100%;
+  overflow:hidden; overscroll-behavior:none; touch-action:manipulation;
+}
+body{
+  min-height:100svh;
+  display:flex; justify-content:center; align-items:center;
+  font-family:system-ui,Arial;
+}
+*{box-sizing:border-box}
+img{user-select:none;-webkit-user-drag:none}
+
+/* 🔄 YATAY */
+#rotateOverlay{
+  position:fixed; inset:0; background:#fff;
+  display:none; justify-content:center; align-items:center;
+  z-index:99999;
+}
+#rotateOverlay img{max-width:90%; max-height:90%; object-fit:contain}
+
+/* ANA KUTU */
+.app{
+  width:100%;
+  max-width:980px;
+  margin: 0 16px;
+  height: calc(100svh - 72px);
+  background:#fff;
+  border-radius:24px;
+  padding:16px;
+  box-shadow:0 12px 30px rgba(0,0,0,.08);
+  overflow:hidden;
+}
+.stage{width:100%; height:100%; position:relative}
+
+/* 1 */
+.intro{
+  width:100%; height:100%;
+  display:grid; grid-template-columns:1fr 1fr; align-items:center;
+}
+.intro img{width:320px; border-radius:22px}
+
+.intro img{
+  margin-top: -40px;   /* 👈 yukarı alır */
+}
+
+.start-dot{
+  width:90px;
+  height:90px;
+  border-radius:50%;
+  background:transparent;   /* 🔥 yeşil gitti */
+  border:none;
+  cursor:pointer;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+
+.start-dot img{
+  width:100%;
+  height:100%;
+  object-fit:contain;
+  pointer-events:none;  /* 🔥 tıklama JS’e gider */
+  margin-top: 10px; 
+}
+
+
+/* 2 – DUYGULAR (BÜYÜK) */
+.emotions{
+  position:absolute; inset:0;
+  display:grid; grid-template-columns:1fr 1fr; grid-template-rows:1fr 1fr;
+  gap:20px; padding:20px;
+}
+.emotion{
+  background:#ffffff; border-radius:22px;
+  display:flex; justify-content:center; align-items:center; overflow:hidden;
+}
+.emotion img{
+  width:100%; height:100%; object-fit:contain;
+}
+
+/* 3 */
+.stage3{
+  position:absolute; inset:0;
+  display:grid; grid-template-columns:1fr 1fr; padding:20px;
+}
+.stage3 > div{display:flex; justify-content:center; align-items:center}
+.stage3 img{max-width:70%; max-height:70%; object-fit:contain}
+
+#toStage4{
+  width:90px;
+  height:90px;
+  border-radius:50%;
+  background:transparent;   /* 🔥 yeşil gitti */
+  border:none;
+  cursor:pointer;
+
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+
+#toStage4 img{
+  width:100%;
+  height:100%;
+  object-fit:contain;
+  pointer-events:none;   /* 🔥 click butonda kalsın */
+}
+
+/* 4 – AKSİYONLAR (BÜYÜK) */
+.stage4{
+  position:absolute; inset:0;
+  display:grid; grid-template-columns:1fr 1fr; grid-template-rows:1fr 1fr;
+  gap:20px; padding:20px;
+}
+.action{
+  background:#ffffff; border-radius:22px;
+  display:flex; justify-content:center; align-items:center; overflow:hidden;
+}
+.action img{
+  width:100%; height:100%; object-fit:contain;
+}
+
+/* 5 */
+.stage5{
+  position:absolute; inset:0;
+  display:flex; justify-content:center; align-items:center;
+}
+#actionGif{max-width:90%; max-height:90%; object-fit:contain}
+
+#actionGif{
+  transform: translateX(-20px);  /* 👈 sola alır */
+}
+
+/* 🔴 RESET */
+#resetBtn{
+  position:absolute;
+  right:24px;
+  top:50%;
+  transform:translateY(-50%);
+  width:90px;
+  height:90px;
+  border-radius:50%;
+  background:transparent;   /* 🔥 kırmızı gitti */
+  border:none;
+  cursor:pointer;
+  box-shadow:none;          /* 🔥 renkli gölge gitti */
+
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+
+#resetBtn img{
+  width:100%;
+  height:100%;
+  object-fit:contain;
+  pointer-events:none;   /* 🔥 tıklama resetBtn’a gider */
+}
+
+.hidden{display:none}
+
+#backBtn{
+  position:fixed;
+  top:12px;
+  left:12px;
+  width:44px;
+  height:44px;
+  background:transparent;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  z-index:100000;              /* rotateOverlay üstünde */
+  text-decoration:none;
+}
+
+#backBtn img{
+  width:28px;
+  height:28px;
+  display:block;
+  pointer-events:none;         /* 🔥 tıklama sorunu çözülür */
+}
+</style>
+</head>
+
+<body>
+
+<a id="backBtn" href="../app.html" aria-label="Geri">
+  <img src="images/geri.png" alt="Geri">
+</a>
+
+<div id="rotateOverlay"><img src="images/yatay.png"></div>
+
+<audio id="audioStart" src="sounds/nasil.mp3" preload="auto"></audio>
+<audio id="audioEmotion" src="sounds/fark_ettin.mp3" preload="auto"></audio>
+<audio id="audioNext" src="sounds/ne_yapmak.mp3" preload="auto"></audio>
+
+<audio id="audioSaril" src="sounds/saril.mp3" preload="auto"></audio>
+<audio id="audioNefes" src="sounds/nefes.mp3" preload="auto"></audio>
+<audio id="audioHareket" src="sounds/hareket.mp3" preload="auto"></audio>
+<audio id="audioKonusma" src="sounds/konusma.mp3" preload="auto"></audio>
+
+<div class="app">
+<div class="stage">
+
+<!-- 1 -->
+<div id="intro" class="intro">
+  <div style="display:flex;justify-content:center"><img src="images/giris.png"></div>
+  <div style="display:flex;justify-content:center"><button id="startBtn" class="start-dot">
+  <img src="images/ileri.png" alt="İleri">
+</button>
+</div>
+</div>
+
+<!-- 2 -->
+<div id="emotions" class="emotions hidden">
+  <div class="emotion" data-emotion="mutlu"><img></div>
+  <div class="emotion" data-emotion="ofkeli"><img></div>
+  <div class="emotion" data-emotion="uzgun"><img></div>
+  <div class="emotion" data-emotion="korkmus"><img></div>
+</div>
+
+<!-- 3 -->
+<div id="stage3" class="stage3 hidden">
+  <div><img id="selectedEmotion"></div>
+  <div><button id="toStage4" class="next-dot">
+  <img src="images/ileri.png" alt="İleri">
+</button>
+</div>
+</div>
+
+<!-- 4 -->
+<div id="stage4" class="stage4 hidden">
+  <div class="action" data-action="sarilmak"><img></div>
+  <div class="action" data-action="nefes"><img></div>
+  <div class="action" data-action="hareket"><img></div>
+  <div class="action" data-action="konusma"><img></div>
+</div>
+
+<!-- 5 -->
+<div id="stage5" class="stage5 hidden">
+  <img id="actionGif">
+  <button id="resetBtn" class="close-dot">
+  <img src="images/kapat.png" alt="Kapat">
+</button>
+</div>
+
+</div>
+</div>
+
+<script>
+
+  if (localStorage.getItem("licenseOK") === "true") {
+  window.location.href = "app.html";
+}
+
+/* DOM YÜKLENDİKTEN SONRA BAĞLA — KRİTİK DÜZELTME */
+document.addEventListener("DOMContentLoaded", () => {
+
+const audioStart   = document.getElementById("audioStart");
+const audioEmotion = document.getElementById("audioEmotion");
+const audioNext    = document.getElementById("audioNext");
+
+const audioSaril   = document.getElementById("audioSaril");
+const audioNefes   = document.getElementById("audioNefes");
+const audioHareket = document.getElementById("audioHareket");
+const audioKonusma = document.getElementById("audioKonusma");
+
+  /* YATAY */
+  function checkOrientation(){
+  const o = document.getElementById("rotateOverlay");
+
+  if(innerHeight > innerWidth){
+    o.style.display = "flex";
+  }else{
+    o.style.display = "none";
+  }
+}
+  addEventListener("load",checkOrientation);
+  addEventListener("resize",checkOrientation);
+
+const gender = localStorage.getItem("childGender") || "k";
+const charBase = "images/characters/" + gender + "/";
+document.querySelectorAll(".emotion").forEach(el=>{
+  const key = el.dataset.emotion;
+  el.querySelector("img").src = charBase + key + ".png";
+});
+
+// 4. sayfadaki action kartlarını cinsiyete göre yükle
+document.querySelectorAll(".action").forEach(el=>{
+  const key = el.dataset.action;
+  el.querySelector("img").src = charBase + key + ".png";
+});
+
+  /* AKIŞ */
+  const intro=document.getElementById("intro");
+  const emotions=document.getElementById("emotions");
+  const stage3=document.getElementById("stage3");
+  const stage4=document.getElementById("stage4");
+  const stage5=document.getElementById("stage5");
+  const selectedEmotion=document.getElementById("selectedEmotion");
+  const actionGif=document.getElementById("actionGif");
+
+  const startBtn=document.getElementById("startBtn");
+  const toStage4=document.getElementById("toStage4");
+  const resetBtn=document.getElementById("resetBtn");
+
+ startBtn.onclick=()=>{
+  audioStart.currentTime = 0;
+  audioStart.play();              // 🔊 nasil.mp3
+
+  intro.classList.add("hidden");
+  emotions.classList.remove("hidden");
+};
+
+ document.querySelectorAll(".emotion").forEach(el=>{
+  el.onclick=()=>{
+    audioEmotion.currentTime = 0;
+    audioEmotion.play();          // 🔊 fark_ettin.mp3
+
+    selectedEmotion.src = charBase + el.dataset.emotion + ".png";
+    emotions.classList.add("hidden");
+    stage3.classList.remove("hidden");
+  };
+});
+
+ toStage4.onclick=()=>{
+  audioNext.currentTime = 0;
+  audioNext.play();               // 🔊 ne_yapmak.mp3
+
+  stage3.classList.add("hidden");
+  stage4.classList.remove("hidden");
+};
+
+  document.querySelectorAll(".action").forEach(el=>{
+  el.onclick=()=>{
+    const key = el.dataset.action;
+
+    // 🔊 aksiyona göre ses
+    if(key === "sarilmak") audioSaril.play();
+    if(key === "nefes")    audioNefes.play();
+    if(key === "hareket")  audioHareket.play();
+    if(key === "konusma")  audioKonusma.play();
+
+    actionGif.src = charBase + key + ".gif";
+    stage4.classList.add("hidden");
+    stage5.classList.remove("hidden");
+  };
+});
+
+  resetBtn.onclick=()=>{
+    stage5.classList.add("hidden");
+    actionGif.src="";
+    intro.classList.remove("hidden");
+  };
+});
+</script>
+
+</body>
+</html>
