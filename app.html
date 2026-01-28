@@ -1427,20 +1427,36 @@ parentModal.addEventListener("click", function(e){
 
 });
 
-function exitApp(){
-  if (window.speechSynthesis) {
-    speechSynthesis.cancel();
+async function exitApp(){
+  const licenseCode = localStorage.getItem("licenseCode");
+  const deviceId = localStorage.getItem("deviceId");
+
+  if (licenseCode && deviceId) {
+    const ref = doc(db, "licenses", licenseCode);
+
+    // cihazı lisansdan düşür
+    await updateDoc(ref, {
+      [`devices.${deviceId}`]: deleteField()
+    });
   }
 
-  // 🔴 GERÇEK ÇIKIŞ
+  // lokal temizleme
   localStorage.removeItem("licensed");
   localStorage.removeItem("licenseCode");
   localStorage.removeItem("childGender");
-  sessionStorage.removeItem("splashDone");
+  sessionStorage.clear();
 
-  // 🔥 CACHE KIRICI (iOS / PWA FIX)
-  window.location.href = "/SemoApp/index.html?logout=1";
+  window.location.href = "/SemoApp/index.html";
 }
+
+  import { 
+  getFirestore, 
+  doc, 
+  updateDoc 
+} from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+  import { deleteField } 
+from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
 
 // 🚪 ÇIKIŞ ONAY MODALI
 function openExitConfirm(){
@@ -1473,6 +1489,7 @@ confirmExitModal.addEventListener("click", function(e){
 
 </body>
 </html>
+
 
 
 
