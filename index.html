@@ -137,6 +137,16 @@ button{background:#d4a441;color:white;font-weight:bold;}
 </div>
 
 <script type="module">
+
+  function getOrCreateDeviceId(){
+  let id = localStorage.getItem("deviceId");
+  if(!id){
+    id = "dev_" + crypto.randomUUID();
+    localStorage.setItem("deviceId", id);
+  }
+  return id;
+}
+
   // Login ekranını garanti aç
  window.onload = () => {
   const isLicensed = localStorage.getItem("licensed");
@@ -182,12 +192,51 @@ button{background:#d4a441;color:white;font-weight:bold;}
     try {
       const ref = doc(db, "licenses", code);
       const snap = await getDoc(ref);
+    if (!snap.exists()) {
+  error.textContent = "Kod bulunamadı";
+  error.style.display = "block";
+  return;
+}
 
-      if (snap.exists() && snap.data().active === true) {
-        // ✔️ lisans OK
-        localStorage.setItem("licensed", "true");
-        localStorage.setItem("licenseCode", code);
-        window.location.href = "./app.html";
+const data = snap.data();
+
+if (!data.active) {
+  error.textContent = "Bu lisans pasif";
+  error.style.display = "block";
+  return;
+}
+
+const deviceId = getOrCreateDeviceId();
+const devices = data.devices || {};
+const deviceCount = Object.keys(devices).length;
+
+// cihaz zaten kayıtlıysa → gir
+if (devices[deviceId]) {
+  localStorage.setItem("licensed", "true");
+  localStorage.setItem("licenseCode", code);
+  window.location.href = "./app.html";
+  return;
+}
+
+// yeni cihaz ama hak var mı?
+if (deviceCount < data.maxDevices) {
+  devices[deviceId] = true;
+
+  await updateDoc(ref, {
+    devices: devices
+  });
+
+  localStorage.setItem("licensed", "true");
+  localStorage.setItem("licenseCode", code);
+  window.location.href = "./app.html";
+  return;
+}
+
+// buraya geldiyse → hak dolu
+error.textContent =
+  "Bu lisans başka bir cihazda kullanılıyor.";
+error.style.display = "block";
+
       } else {
         error.textContent = "Giriş kodu hatalı";
         error.style.display = "block";
@@ -202,6 +251,7 @@ button{background:#d4a441;color:white;font-weight:bold;}
 
 </body>
 </html>
+
 
 
 
