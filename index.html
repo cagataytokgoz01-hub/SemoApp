@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<base href="/SemoApp/">
+
+<link rel="manifest" href="/SemoApp/manifest.json">
+<link rel="apple-touch-icon" href="/icons/icon-192.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="theme-color" content="#ffffff">
+
+<meta charset="UTF-8">
+<title>Semo</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<style>
+body,html{margin:0;padding:0;width:100%;height:100%;font-family:sans-serif;}
+.screen{display:none;width:100%;height:100%;align-items:center;justify-content:center;flex-direction:column;}
+#license{background:#fff2c7;}
+#splash{background:#8fd3f4;}
+#gender{background:#ffd6e8;}
+#home{background:#c8f7c5;}
+input,button{font-size:18px;padding:12px;border-radius:12px;border:none;}
+button{background:#d4a441;color:white;font-weight:bold;}
+</style>
+</head>
+
+<body>
+<div id="loginScreen" style="
+  display:none;
+  min-height:100svh;
+  padding:24px 16px;              /* 🔑 kenarlardan nefes */
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  background:#fffdf6;             /* 🔑 üst header ile AYNI */
+  font-family:'Poppins', system-ui, -apple-system, sans-serif;
+  box-sizing:border-box;
+">
+
+  <div style="
+    background:white;
+    padding:32px 28px;
+    border-radius:16px;
+    width:320px;
+    box-shadow:0 20px 40px rgba(0,0,0,.12);
+    text-align:center;
+  ">
+
+    <!-- LOGO / BAŞLIK -->
+    <div style="
+      font-size:22px;
+      font-weight:600;
+      margin-bottom:8px;
+      color:#2f3a5a;
+    ">
+      SemoApp Uygulama Girişi
+    </div>
+
+    <div style="
+      font-size:14px;
+      color:#6b7280;
+      margin-bottom:24px;
+    ">
+      Lisans kodunu giriniz
+    </div>
+
+    <!-- INPUT -->
+    <input
+      id="licenseInput"
+      type="text"
+      placeholder="Giriş Kodu"
+      style="
+        width:100%;
+        padding:12px;
+        font-size:16px;
+        border-radius:10px;
+        border:1px solid #d1d5db;
+        outline:none;
+        box-sizing:border-box;
+      "
+      onkeydown="if(event.key==='Enter'){checkLicense()}"
+    />
+
+    <!-- BUTTON -->
+    <button
+      onclick="checkLicense()"
+      style="
+        width:100%;
+        margin-top:16px;
+        padding:12px;
+        font-size:16px;
+        border:none;
+        border-radius:10px;
+        background:#4f46e5;
+        color:white;
+        cursor:pointer;
+      "
+    >
+      Giriş Yap
+    </button>
+
+    <!-- ERROR -->
+    <div
+      id="errorText"
+      style="
+        margin-top:12px;
+        font-size:14px;
+        color:#dc2626;
+        display:none;
+      "
+    >
+      Giriş kodu hatalı
+    </div>
+
+  </div>
+</div>
+
+<div id="splash" class="screen">
+  <h1>SPLASH</h1>
+</div>
+
+<div id="gender" class="screen">
+  <h2>Cinsiyet</h2>
+  <button onclick="selectGender('k')">Kız</button>
+  <button onclick="selectGender('e')">Erkek</button>
+</div>
+
+<div id="home" class="screen">
+  <h2>Ana Sayfa</h2>
+
+  <button onclick="openApp()">Uygulamayı Aç</button>
+
+  <br><br>
+
+  <button onclick="logout()">Çıkış</button>
+</div>
+
+<script type="module">
+
+  function getOrCreateDeviceId(){
+  let id = localStorage.getItem("deviceId");
+  if(!id){
+    id = "dev_" + crypto.randomUUID();
+    localStorage.setItem("deviceId", id);
+  }
+  return id;
+}
+
+  document.getElementById("loginScreen").style.display = "flex";
+
+  // Firebase SDK
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+  import { 
+  getFirestore, 
+  doc, 
+  getDoc,
+  updateDoc
+} from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+  // 🔑 Firebase config (seninki)
+  const firebaseConfig = {
+    apiKey: "AIzaSyBNgFdfhoV5SXx9BAVkFdIen1ckPidaj-Q",
+    authDomain: "semoapp-38259.firebaseapp.com",
+    projectId: "semoapp-38259",
+    storageBucket: "semoapp-38259.firebasestorage.app",
+    messagingSenderId: "877067367084",
+    appId: "1:877067367084:web:d826c6e7a80d77e58e2509"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const db = getFirestore(app);
+
+  // 🔐 Lisans kontrolü
+  window.checkLicense = async function () {
+    const input = document.getElementById("licenseInput");
+    const error = document.getElementById("errorText");
+    const code = input.value.trim();
+
+    if (!code) {
+      error.textContent = "Kod giriniz";
+      error.style.display = "block";
+      return;
+    }
+
+    try {
+      const ref = doc(db, "licenses", code);
+      const snap = await getDoc(ref);
+    if (!snap.exists()) {
+  error.textContent = "Kod bulunamadı";
+  error.style.display = "block";
+  return;
+}
+
+const data = snap.data();
+
+if (!data.active) {
+  error.textContent = "Bu lisans pasif";
+  error.style.display = "block";
+  return;
+}
+
+const deviceId = getOrCreateDeviceId();
+const devices = data.devices || {};
+const deviceCount = Object.keys(devices).length;
+
+// cihaz zaten kayıtlıysa → gir
+if (devices[deviceId]) {
+  localStorage.setItem("licensed", "true");
+  localStorage.setItem("licenseCode", code);
+  window.location.href = "./app.html";
+  return;
+}
+
+// yeni cihaz ama hak var mı?
+if (deviceCount < data.maxDevices) {
+  devices[deviceId] = true;
+
+  await updateDoc(ref, {
+    devices: devices
+  });
+
+  localStorage.setItem("licensed", "true");
+  localStorage.setItem("licenseCode", code);
+  window.location.href = "./app.html";
+  return;
+}
+
+// buraya geldiyse → hak dolu
+error.textContent =
+  "Bu lisans başka bir cihazda kullanılıyor.";
+error.style.display = "block";
+
+    } catch (e) {
+      console.error(e);
+      error.textContent = "Bağlantı hatası";
+      error.style.display = "block";
+    }
+  };
+</script>
+
+</body>
+</html>
+
+
+
+
+
+
+
