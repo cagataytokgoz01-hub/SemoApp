@@ -138,9 +138,17 @@ button{background:#d4a441;color:white;font-weight:bold;}
 
 <script type="module">
   // Login ekranını garanti aç
-  window.onload = () => {
+ window.onload = () => {
+  const isLicensed = localStorage.getItem("licensed");
+
+  if (isLicensed === "true") {
+    // Daha önce giriş yapılmış → direkt uygulamaya geç
+    window.location.href = "./app.html";
+  } else {
+    // İlk kez ya da çıkış yapılmış
     document.getElementById("loginScreen").style.display = "flex";
-  };
+  }
+};
 
   // Firebase SDK
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
@@ -194,5 +202,6 @@ button{background:#d4a441;color:white;font-weight:bold;}
 
 </body>
 </html>
+
 
 
