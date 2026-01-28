@@ -322,7 +322,7 @@
 <body>
 
   <!-- Home/Geri -->
-  <a id="homeBtn" href="../index.html" aria-label="Home">
+  <a id="homeBtn" href="../app.html" aria-label="Home">
     <img src="images/geri.png" alt="Home">
   </a>
 
@@ -374,6 +374,10 @@
 <audio id="softVoice" preload="auto"></audio>
 
 <script>
+  if (localStorage.getItem("licenseOK") === "true") {
+  window.location.href = "app.html";
+}
+
 document.getElementById("parentBtn").onclick = () => {
   document.getElementById("parentPortal").style.display = "flex";
 };
@@ -513,3 +517,4 @@ document.getElementById("startBtn").addEventListener("click", () => {
 
 </body>
 </html>
+
