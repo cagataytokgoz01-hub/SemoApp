@@ -159,7 +159,7 @@ body {
   <img src="images/yatay.png" alt="Ekranı yatay çevir">
 </div>
 
-<a id="backBtn" href="../index.html" aria-label="Geri">
+<a id="backBtn" href="../app.html" aria-label="Geri">
   <img src="images/geri.png" alt="Geri">
 </a>
 
@@ -177,6 +177,9 @@ body {
 </div>
 
 <script>
+if (localStorage.getItem("licenseOK") === "true") {
+  window.location.href = "app.html";
+}
 
 /* 🎧 TEK SES OYNATICI */
 const voicePlayer = new Audio();
