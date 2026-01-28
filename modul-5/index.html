@@ -163,7 +163,7 @@ img{user-select:none;-webkit-user-drag:none}
 <audio id="breathSound" src="sounds/nefes.mp3" preload="auto"></audio>
 
 <!-- HOME -->
-<a id="homeBtn" href="../index.html" aria-label="Ana Sayfa">
+<a id="homeBtn" href="../app.html" aria-label="Ana Sayfa">
   <img src="images/geri.png" alt="Geri">
 </a>
 
@@ -188,6 +188,10 @@ img{user-select:none;-webkit-user-drag:none}
 </div>
 
 <script>
+
+  if (localStorage.getItem("licenseOK") === "true") {
+  window.location.href = "app.html";
+}
 
 const questionVoice = document.getElementById("questionVoice");
 const bodyWrap   = document.getElementById("bodyWrap");
@@ -276,4 +280,5 @@ document.getElementById("startBtn").addEventListener("click", () => {
 </script>
 
 </body>
+
 </html>
