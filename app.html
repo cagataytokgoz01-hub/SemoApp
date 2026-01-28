@@ -1102,34 +1102,77 @@ button.danger{
 <body>
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+import { getFirestore, doc, getDoc, updateDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
-const firebaseConfig = { /* seninki */ };
+const firebaseConfig = {
+  apiKey: "AIzaSyBNgFdfhoV5SXx9BAVkFdIen1ckPidaj-Q",
+  authDomain: "semoapp-38259.firebaseapp.com",
+  projectId: "semoapp-38259",
+  storageBucket: "semoapp-38259.firebasestorage.app",
+  messagingSenderId: "877067367084",
+  appId: "1:877067367084:web:d826c6e7a80d77e58e2509"
+};
+
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
-const myDeviceId = localStorage.getItem("deviceId");
-const licenseCode = localStorage.getItem("licenseCode");
-
-if (!myDeviceId || !licenseCode) {
-  window.location.replace("/SemoApp/index.html");
-}
-
-const ref = doc(db, "licenses", licenseCode);
-const snap = await getDoc(ref);
-
-if (!snap.exists() || snap.data().activeDevice !== myDeviceId) {
-  // 🔥 başka cihazdan giriş yapılmış → düş
-  localStorage.clear();
-  sessionStorage.clear();
-  window.location.replace("/SemoApp/index.html");
-}
-</script>
-
-  <script>
-  if (localStorage.getItem("licensed") !== "true") {
-    window.location.replace("/SemoApp/index.html");
+function getOrCreateDeviceId(){
+  let id = localStorage.getItem("deviceId");
+  if(!id){
+    id = "dev_" + crypto.randomUUID();
+    localStorage.setItem("deviceId", id);
   }
+  return id;
+}
+
+window.checkLicense = async function () {
+  const input = document.getElementById("licenseInput");
+  const error = document.getElementById("errorText");
+  const code = input.value.trim();
+
+  if (!code) {
+    error.textContent = "Kod giriniz";
+    error.style.display = "block";
+    return;
+  }
+
+  try {
+    const ref = doc(db, "licenses", code);
+    const snap = await getDoc(ref);
+
+    if (!snap.exists()) {
+      error.textContent = "Kod bulunamadı";
+      error.style.display = "block";
+      return;
+    }
+
+    const data = snap.data();
+
+    if (!data.active) {
+      error.textContent = "Bu lisans pasif";
+      error.style.display = "block";
+      return;
+    }
+
+    const deviceId = getOrCreateDeviceId();
+
+    // 🔥 TEK KURAL: yeni giriş her zaman kazanır
+    await updateDoc(ref, {
+      activeDevice: deviceId,
+      lastLogin: Date.now()
+    });
+
+    localStorage.setItem("licensed", "true");
+    localStorage.setItem("licenseCode", code);
+
+    window.location.href = "./app.html";
+
+  } catch (e) {
+    console.error(e);
+    error.textContent = "Bağlantı hatası";
+    error.style.display = "block";
+  }
+};
 </script>
 
 <!-- SPLASH -->
@@ -1502,6 +1545,7 @@ confirmExitModal.addEventListener("click", function(e){
 
 </body>
 </html>
+
 
 
 
