@@ -137,8 +137,22 @@ button{background:#d4a441;color:white;font-weight:bold;}
 </div>
 
 <script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import { getFirestore, doc, getDoc, updateDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
-  function getOrCreateDeviceId(){
+const firebaseConfig = {
+  apiKey: "AIzaSyBNgFdfhoV5SXx9BAVkFdIen1ckPidaj-Q",
+  authDomain: "semoapp-38259.firebaseapp.com",
+  projectId: "semoapp-38259",
+  storageBucket: "semoapp-38259.firebasestorage.app",
+  messagingSenderId: "877067367084",
+  appId: "1:877067367084:web:d826c6e7a80d77e58e2509"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+
+function getOrCreateDeviceId(){
   let id = localStorage.getItem("deviceId");
   if(!id){
     id = "dev_" + crypto.randomUUID();
@@ -147,100 +161,58 @@ button{background:#d4a441;color:white;font-weight:bold;}
   return id;
 }
 
-  document.getElementById("loginScreen").style.display = "flex";
+window.checkLicense = async function(){
+  const code = document.getElementById("licenseInput").value.trim();
+  const error = document.getElementById("errorText");
 
-  // Firebase SDK
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-  import { 
-  getFirestore, 
-  doc, 
-  getDoc,
-  updateDoc
-} from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+  if(!code){
+    error.textContent = "Kod giriniz";
+    error.style.display = "block";
+    return;
+  }
 
-  // 🔑 Firebase config (seninki)
-  const firebaseConfig = {
-    apiKey: "AIzaSyBNgFdfhoV5SXx9BAVkFdIen1ckPidaj-Q",
-    authDomain: "semoapp-38259.firebaseapp.com",
-    projectId: "semoapp-38259",
-    storageBucket: "semoapp-38259.firebasestorage.app",
-    messagingSenderId: "877067367084",
-    appId: "1:877067367084:web:d826c6e7a80d77e58e2509"
-  };
+  try{
+    const ref = doc(db, "licenses", code);
+    const snap = await getDoc(ref);
 
-  const app = initializeApp(firebaseConfig);
-  const db = getFirestore(app);
-
-  // 🔐 Lisans kontrolü
-  window.checkLicense = async function () {
-    const input = document.getElementById("licenseInput");
-    const error = document.getElementById("errorText");
-    const code = input.value.trim();
-
-    if (!code) {
-      error.textContent = "Kod giriniz";
+    if(!snap.exists()){
+      error.textContent = "Kod bulunamadı";
       error.style.display = "block";
       return;
     }
 
-    try {
-      const ref = doc(db, "licenses", code);
-      const snap = await getDoc(ref);
-    if (!snap.exists()) {
-  error.textContent = "Kod bulunamadı";
-  error.style.display = "block";
-  return;
-}
+    const data = snap.data();
 
-const data = snap.data();
-
-if (!data.active) {
-  error.textContent = "Bu lisans pasif";
-  error.style.display = "block";
-  return;
-}
-
-const deviceId = getOrCreateDeviceId();
-const devices = data.devices || {};
-const deviceCount = Object.keys(devices).length;
-
-// cihaz zaten kayıtlıysa → gir
-if (devices[deviceId]) {
-  localStorage.setItem("licensed", "true");
-  localStorage.setItem("licenseCode", code);
-  window.location.href = "./app.html";
-  return;
-}
-
-// yeni cihaz ama hak var mı?
-if (deviceCount < data.maxDevices) {
-  devices[deviceId] = true;
-
-  await updateDoc(ref, {
-    devices: devices
-  });
-
-  localStorage.setItem("licensed", "true");
-  localStorage.setItem("licenseCode", code);
-  window.location.href = "./app.html";
-  return;
-}
-
-// buraya geldiyse → hak dolu
-error.textContent =
-  "Bu lisans başka bir cihazda kullanılıyor.";
-error.style.display = "block";
-
-    } catch (e) {
-      console.error(e);
-      error.textContent = "Bağlantı hatası";
+    if(!data.active){
+      error.textContent = "Bu lisans pasif";
       error.style.display = "block";
+      return;
     }
-  };
+
+    const deviceId = getOrCreateDeviceId();
+
+    // 🔥 TEK KURAL: yeni giriş her zaman kazanır
+    await updateDoc(ref, {
+      activeDevice: deviceId,
+      lastLogin: Date.now()
+    });
+
+    localStorage.setItem("licensed", "true");
+    localStorage.setItem("licenseCode", code);
+
+    window.location.replace("./app.html");
+
+  }catch(e){
+    console.error(e);
+    error.textContent = "Bağlantı hatası";
+    error.style.display = "block";
+  }
+}
 </script>
 
 </body>
 </html>
+
 
 
 
