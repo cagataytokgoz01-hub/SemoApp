@@ -1469,7 +1469,48 @@ confirmExitModal.addEventListener("click", function(e){
 
 </script>
 
+    <script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyBNgFdfhoV5SXx9BAVkFdIen1ckPidaj-Q",
+  authDomain: "semoapp-38259.firebaseapp.com",
+  projectId: "semoapp-38259",
+  storageBucket: "semoapp-38259.firebasestorage.app",
+  messagingSenderId: "877067367084",
+  appId: "1:877067367084:web:d826c6e7a80d77e58e2509"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+
+// 🔐 local bilgiler
+const licenseCode = localStorage.getItem("licenseCode");
+const deviceId = localStorage.getItem("deviceId");
+
+// lisans bilgisi yoksa → login
+if (!licenseCode || !deviceId) {
+  localStorage.clear();
+  window.location.replace("/SemoApp/index.html");
+}
+
+// firestore kontrol
+const ref = doc(db, "licenses", licenseCode);
+const snap = await getDoc(ref);
+
+// 🔥 BAŞKA CİHAZDAN GİRİŞ VARSA → DÜŞ
+if (!snap.exists() || snap.data().activeDevice !== deviceId) {
+  localStorage.clear();
+  sessionStorage.clear();
+  alert("Bu lisans başka bir cihazda açıldı.");
+  window.location.replace("/SemoApp/index.html");
+}
+</script>
+
+
 </body>
 </html>
+
 
 
