@@ -1,7 +1,7 @@
 {
   "name": "SemoApp Admin",
   "short_name": "Semo Admin",
-  "start_url": "./admin.html",
+  "start_url": "./admin.html?v=2",
   "display": "standalone",
   "background_color": "#fffdf6",
   "theme_color": "#4f46e5",
@@ -17,4 +17,5 @@
       "type": "image/png"
     }
   ]
+
 }
