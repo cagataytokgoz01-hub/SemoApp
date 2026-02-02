@@ -229,18 +229,25 @@ window.createPackage = async function(){
     createdAt: serverTimestamp()
   });
 
-  // Lisans kodları
-  for(let i=0;i<count;i++){
-    const code = generateCode();
-    codes.push(code);
+ // Lisans kodlarını hazırla
+const batchWrites = [];
 
-    await setDoc(doc(db, "licenses", code), {
+for(let i = 0; i < count; i++){
+  const code = generateCode();
+  codes.push(code);
+
+  batchWrites.push(
+    setDoc(doc(db, "licenses", code), {
       packageId,
       active: true,
       usedDevices: [],
       createdAt: serverTimestamp()
-    });
-  }
+    })
+  );
+}
+
+// HEPSİNİ TEK SEFERDE YAZ
+await Promise.all(batchWrites);
 
   // Sonuç göster
   resultBox.style.display = "block";
@@ -261,3 +268,4 @@ setTimeout(() => {
 
 </body>
 </html>
+
