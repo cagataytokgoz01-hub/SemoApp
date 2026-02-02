@@ -1431,7 +1431,7 @@ function exitApp(){
   localStorage.removeItem("childGender");
   sessionStorage.clear();
 
-  window.location.href = "/SemoApp/index.html";
+  window.location.href = "index.html";
 }
 
 // 🚪 ÇIKIŞ ONAY MODALI
@@ -1486,7 +1486,7 @@ const deviceId = localStorage.getItem("deviceId");
 // lisans bilgisi yoksa → login
 if (!licenseCode || !deviceId) {
   localStorage.clear();
-  window.location.replace("/SemoApp/index.html");
+  window.location.replace("index.html");
 }
 
 // firestore kontrol
@@ -1498,13 +1498,14 @@ if (!snap.exists() || snap.data().activeDevice !== deviceId) {
   localStorage.clear();
   sessionStorage.clear();
   alert("Bu lisans başka bir cihazda açıldı.");
-  window.location.replace("/SemoApp/index.html");
+  window.location.replace("index.html");
 }
 </script>
 
 
 </body>
 </html>
+
 
 
 
