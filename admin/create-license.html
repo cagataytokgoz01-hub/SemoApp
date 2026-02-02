@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Lisans Kodu Oluştur – SemoApp</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@500;600;700&display=swap" rel="stylesheet">
+
+<style>
+*{ box-sizing:border-box; }
+
+body{
+  margin:0;
+  min-height:100svh;
+  font-family:'Poppins', system-ui, -apple-system, sans-serif;
+  background:#fffdf6;
+  display:flex;
+  justify-content:center;
+}
+
+.page{
+  width:100%;
+  max-width:380px;
+  padding:20px 18px 32px;
+}
+
+/* HEADER */
+.header{
+  display:flex;
+  align-items:center;
+  gap:12px;
+  margin-bottom:24px;
+}
+
+.back-btn{
+  border:none;
+  background:#e5e7eb;
+  border-radius:12px;
+  padding:8px 12px;
+  font-size:14px;
+  cursor:pointer;
+}
+
+.header h1{
+  font-size:18px;
+  margin:0;
+  font-weight:700;
+  color:#2f3a5a;
+}
+
+/* FORM */
+.form{
+  display:flex;
+  flex-direction:column;
+  gap:16px;
+}
+
+label{
+  font-size:13px;
+  color:#374151;
+  margin-bottom:4px;
+}
+
+input{
+  width:100%;
+  padding:12px 14px;
+  border-radius:14px;
+  border:1px solid #d1d5db;
+  font-size:15px;
+}
+
+input:focus{
+  outline:none;
+  border-color:#4f46e5;
+}
+
+/* BUTON */
+.create-btn{
+  margin-top:12px;
+  padding:16px;
+  border:none;
+  border-radius:18px;
+  background:linear-gradient(180deg,#8fd3f4,#4f46e5);
+  color:#fff;
+  font-size:16px;
+  font-weight:600;
+  cursor:pointer;
+
+  box-shadow:
+    0 10px 22px rgba(0,0,0,.18),
+    inset 0 1px 0 rgba(255,255,255,.35);
+}
+
+.create-btn:active{
+  transform:scale(.98);
+}
+
+/* RESULT */
+.result{
+  margin-top:24px;
+  padding:16px;
+  background:#f9fafb;
+  border-radius:16px;
+  font-size:14px;
+  display:none;
+}
+
+.codes{
+  margin-top:12px;
+  font-family:monospace;
+  font-size:13px;
+  line-height:1.6;
+}
+</style>
+</head>
+
+<body>
+
+<div class="page">
+
+  <div class="header">
+    <button class="back-btn" onclick="history.back()">⬅ Geri</button>
+    <h1>Lisans Kodu Oluştur</h1>
+  </div>
+
+  <div class="form">
+
+    <div>
+      <label>Paket Adı</label>
+      <input id="packageName" placeholder="Örn: Ankara Anaokulu – 10 Lisans">
+    </div>
+
+    <div>
+      <label>Kaç Lisans Kodu Üretilecek?</label>
+      <input id="count" type="number" min="1" placeholder="Örn: 10">
+    </div>
+
+    <div>
+      <label>Geçerlilik Süresi (gün)</label>
+      <input id="duration" type="number" min="1" placeholder="Örn: 180">
+    </div>
+
+    <div>
+      <label>Cihaz Limiti (her lisans için)</label>
+      <input id="devices" type="number" min="1" placeholder="Örn: 1">
+    </div>
+
+   <button id="createBtn" class="create-btn" onclick="createPackage()">
+  Lisans Kodu Oluştur
+</button>
+
+  </div>
+
+  <div class="result" id="resultBox">
+    <b>Paket Oluşturuldu</b>
+    <div class="codes" id="codesBox"></div>
+  </div>
+
+<div id="successToast" style="
+  display:none;
+  position:fixed;
+  top:20px;
+  left:50%;
+  transform:translateX(-50%);
+  padding:14px 20px;
+  border-radius:14px;
+  background:#dcfce7;
+  color:#166534;
+  font-size:14px;
+  font-weight:600;
+  text-align:center;
+  z-index:9999;
+  box-shadow:0 8px 20px rgba(0,0,0,.15);
+">
+
+  ✅ Lisans oluşturuldu
+</div>
+
+</div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import {
+  getFirestore,
+  collection,
+  doc,
+  setDoc,
+  serverTimestamp
+} from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+/* FIREBASE */
+const firebaseConfig = {
+  apiKey: "AIzaSyBNgFdfhoV5SXx9BAVkFdIen1ckPidaj-Q",
+  authDomain: "semoapp-38259.firebaseapp.com",
+  projectId: "semoapp-38259",
+  storageBucket: "semoapp-38259.firebasestorage.app",
+  messagingSenderId: "877067367084",
+  appId: "1:877067367084:web:d826c6e7a80d77e58e2509"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+
+/* KOD ÜRETİCİ */
+function generateCode(){
+  const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+  let out = "SEMO-";
+  for(let i=0;i<4;i++){
+    out += chars[Math.floor(Math.random()*chars.length)];
+  }
+  return out;
+}
+
+window.createPackage = async function(){
+  const btn = document.getElementById("createBtn");
+
+  // ikinci tıklamayı engelle
+  if(btn.disabled) return;
+
+  // butonu kilitle
+  btn.disabled = true;
+  btn.innerText = "⏳ Oluşturuluyor...";
+
+  const name = packageName.value.trim();
+  const count = parseInt(document.getElementById("count").value);
+  const duration = parseInt(document.getElementById("duration").value);
+  const devices = parseInt(document.getElementById("devices").value);
+
+
+if(!name || !count || !duration || !devices){
+  alert("Lütfen tüm alanları doldurun");
+  btn.disabled = false;
+  btn.innerText = "Lisans Kodu Oluştur";
+  return;
+}
+
+  const packageId = "pkg_" + Date.now();
+  const codes = [];
+
+  // Paket kaydı
+  await setDoc(doc(db, "licensePackages", packageId), {
+    title: name,
+    durationDays: duration,
+    deviceLimit: devices,
+    licenseCount: count,
+    createdAt: serverTimestamp()
+  });
+
+ // Lisans kodlarını hazırla
+const batchWrites = [];
+
+for(let i = 0; i < count; i++){
+  const code = generateCode();
+  codes.push(code);
+
+  batchWrites.push(
+    setDoc(doc(db, "licenses", code), {
+      packageId,
+      active: true,
+      usedDevices: [],
+      createdAt: serverTimestamp()
+    })
+  );
+}
+
+// HEPSİNİ TEK SEFERDE YAZ
+await Promise.all(batchWrites);
+
+  // Sonuç göster
+  resultBox.style.display = "block";
+  codesBox.innerHTML = codes.join("<br>");
+
+// Başarı mesajı göster
+const toast = document.getElementById("successToast");
+toast.style.display = "block";
+
+// 3 saniye sonra gizle (istersen kaldırabilirsin)
+setTimeout(() => {
+  toast.style.display = "none";
+}, 3000);
+
+// butonu geri aç
+btn.disabled = false;
+btn.innerText = "Lisans Kodu Oluştur";
+
+
+};
+
+</script>
+
+</body>
+</html>
