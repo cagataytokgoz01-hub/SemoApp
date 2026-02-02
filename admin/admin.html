@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+
+<link rel="manifest" href="./manifest.json">
+
+<link rel="apple-touch-icon" href="./icons/icon-192.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+
+<meta name="theme-color" content="#4f46e5">
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>SemoApp Admin</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@500;600;700&display=swap" rel="stylesheet">
+
+<style>
+*{
+  box-sizing:border-box;
+}
+
+body{
+  margin:0;
+  padding:0;
+  min-height:100svh;
+  font-family:'Poppins', system-ui, -apple-system, sans-serif;
+  background:#fffdf6;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+}
+
+/* ANA KAPSÜL */
+.admin-wrap{
+  width:100%;
+  max-width:380px;
+  padding:24px 18px;
+}
+
+/* BAŞLIK */
+.admin-header{
+  text-align:center;
+  margin-bottom:32px;
+}
+
+.admin-header h1{
+  font-size:22px;
+  font-weight:700;
+  margin:0;
+  color:#2f3a5a;
+}
+
+.admin-header p{
+  font-size:14px;
+  margin-top:6px;
+  color:#6b7280;
+}
+
+/* BUTONLAR */
+.admin-actions{
+  display:flex;
+  flex-direction:column;
+  gap:16px;
+}
+
+.admin-btn{
+  width:100%;
+  padding:18px 16px;
+  border-radius:18px;
+  border:none;
+  cursor:pointer;
+
+  display:flex;
+  align-items:center;
+  justify-content:center;
+
+  font-size:17px;
+  font-weight:600;
+  color:#fff;
+
+  box-shadow:
+    0 10px 22px rgba(0,0,0,.15),
+    inset 0 1px 0 rgba(255,255,255,.35);
+
+  transition:transform .12s ease, box-shadow .12s ease;
+}
+
+.admin-btn:active{
+  transform:scale(.98);
+  box-shadow:
+    0 6px 14px rgba(0,0,0,.18),
+    inset 0 1px 0 rgba(255,255,255,.25);
+}
+
+/* RENKLER – SEMO STİL */
+.btn-create{
+  background:linear-gradient(180deg,#8fd3f4,#4f46e5);
+}
+
+.btn-list{
+  background:linear-gradient(180deg,#ffd166,#f4a261);
+}
+
+/* ALT BİLGİ */
+.admin-footer{
+  margin-top:32px;
+  text-align:center;
+  font-size:12px;
+  color:#9ca3af;
+}
+</style>
+</head>
+
+<body>
+
+<div class="admin-wrap">
+
+  <div class="admin-header">
+    <h1>SemoApp Admin</h1>
+    <p>Lisans ve Erişim Yönetimi</p>
+  </div>
+
+  <div class="admin-actions">
+    <button class="admin-btn btn-create"
+      onclick="location.href='create-license.html'">
+      ➕ Lisans Kodu Oluştur
+    </button>
+
+    <button class="admin-btn btn-list"
+      onclick="location.href='licenses.html'">
+      📋 Lisanslar
+    </button>
+  </div>
+
+  <div class="admin-footer">
+    from Çağatay Tokgöz
+  </div>
+
+</div>
+
+</body>
+</html>

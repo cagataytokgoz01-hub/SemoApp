@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Paket Detayları – SemoApp</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@500;600;700&display=swap" rel="stylesheet">
+
+<style>
+*{ box-sizing:border-box; }
+
+body{
+  margin:0;
+  min-height:100svh;
+  font-family:'Poppins', system-ui, -apple-system, sans-serif;
+  background:#fffdf6;
+  display:flex;
+  justify-content:center;
+}
+
+.page{
+  width:100%;
+  max-width:380px;
+  padding:20px 18px 32px;
+}
+
+/* HEADER */
+.header{
+  display:flex;
+  align-items:center;
+  gap:12px;
+  margin-bottom:20px;
+}
+
+.back-btn{
+  border:none;
+  background:#e5e7eb;
+  border-radius:12px;
+  padding:8px 12px;
+  font-size:14px;
+  cursor:pointer;
+}
+
+.header h1{
+  font-size:17px;
+  margin:0;
+  font-weight:700;
+  color:#2f3a5a;
+}
+
+/* KART */
+.card{
+  background:#fff;
+  border-radius:18px;
+  padding:14px;
+  box-shadow:0 8px 18px rgba(0,0,0,.12);
+  margin-bottom:12px;
+}
+
+.top{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  margin-bottom:6px;
+}
+
+.status{
+  font-size:11px;
+  padding:4px 8px;
+  border-radius:10px;
+  font-weight:600;
+}
+
+.status.active{
+  background:#dcfce7;
+  color:#166534;
+}
+
+.status.passive{
+  background:#fee2e2;
+  color:#991b1b;
+}
+
+.meta{
+  font-size:13px;
+  color:#374151;
+  margin-bottom:10px;
+}
+
+/* BUTONLAR */
+.actions{
+  display:flex;
+  gap:8px;
+}
+
+.actions button{
+  flex:1;
+  border:none;
+  border-radius:10px;
+  padding:7px;
+  font-size:12px;
+  cursor:pointer;
+}
+
+.reset-btn{
+  background:#fef3c7;
+  color:#92400e;
+}
+
+.toggle-btn{
+  background:#e0e7ff;
+  color:#3730a3;
+}
+
+.copy-btn{
+  background:#e0f2fe;
+  color:#0369a1;
+}
+
+</style>
+</head>
+
+<body>
+
+<div class="page">
+
+  <div class="header">
+    <button class="back-btn" onclick="history.back()">⬅ Geri</button>
+    <h1 id="title">Paket</h1>
+  </div>
+
+  <div id="list"></div>
+
+</div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import {
+  getFirestore,
+  collection,
+  getDocs,
+  query,
+  where,
+  doc,
+  getDoc,
+  updateDoc
+} from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+/* FIREBASE */
+const firebaseConfig = {
+  apiKey: "AIzaSyBNgFdfhoV5SXx9BAVkFdIen1ckPidaj-Q",
+  authDomain: "semoapp-38259.firebaseapp.com",
+  projectId: "semoapp-38259",
+  storageBucket: "semoapp-38259.firebasestorage.app",
+  messagingSenderId: "877067367084",
+  appId: "1:877067367084:web:d826c6e7a80d77e58e2509"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+
+const params = new URLSearchParams(location.search);
+const packageId = params.get("pkg");
+
+const listEl = document.getElementById("list");
+const titleEl = document.getElementById("title");
+
+/* YÜKLE */
+async function load(){
+  if(!packageId){
+    titleEl.textContent = "Paket bulunamadı";
+    return;
+  }
+
+  const pkgSnap = await getDoc(doc(db, "licensePackages", packageId));
+  if(pkgSnap.exists()){
+    titleEl.textContent = pkgSnap.data().title;
+  }
+
+  const licSnap = await getDocs(
+    query(
+      collection(db, "licenses"),
+      where("packageId", "==", packageId)
+    )
+  );
+
+  if(licSnap.empty){
+    listEl.innerHTML = "<p>Lisans yok</p>";
+    return;
+  }
+
+  for(const lic of licSnap.docs){
+    const data = lic.data();
+    const code = lic.id;
+
+    const usedCount = Array.isArray(data.usedDevices)
+      ? data.usedDevices.length
+      : 0;
+
+    const card = document.createElement("div");
+    card.className = "card";
+
+    card.innerHTML = `
+      <div class="top">
+        <b>${code}</b>
+        <span class="status ${data.active ? "active" : "passive"}">
+          ${data.active ? "Aktif" : "Pasif"}
+        </span>
+      </div>
+
+      <div class="meta">
+        Kullanılan cihaz: ${usedCount}
+      </div>
+
+     <div class="actions">
+  <button class="reset-btn" onclick="resetDevices('${code}')">
+    🔁 Sıfırla
+  </button>
+
+  <button class="toggle-btn" onclick="toggle('${code}', ${data.active})">
+    ${data.active ? "⛔ Pasif" : "✅ Aktif"}
+  </button>
+
+  <button class="copy-btn" onclick="copyCode('${code}')">
+    📋 Kopyala
+  </button>
+</div>
+    `;
+
+    listEl.appendChild(card);
+  }
+}
+
+load();
+
+/* CİHAZ SIFIRLA */
+window.resetDevices = async function(code){
+  if(!confirm("Bu lisansın cihazları sıfırlansın mı?")) return;
+
+  await updateDoc(doc(db, "licenses", code), {
+    usedDevices: []
+  });
+
+  location.reload();
+};
+
+/* AKTİF / PASİF */
+window.toggle = async function(code, active){
+  await updateDoc(doc(db, "licenses", code), {
+    active: !active
+  });
+
+  alert(active ? "Lisans pasif hale getirildi" : "Lisans aktif hale getirildi");
+  location.reload();
+};
+
+window.copyCode = function(code){
+  navigator.clipboard.writeText(code)
+    .then(() => {
+      alert("Lisans kodu kopyalandı");
+    })
+    .catch(() => {
+      alert("Kopyalama başarısız");
+    });
+};
+
+</script>
+
+</body>
+</html>

@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Lisanslar - SemoApp</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@500;600;700&display=swap" rel="stylesheet">
+
+<style>
+*{ box-sizing:border-box; }
+
+body{
+  margin:0;
+  min-height:100svh;
+  font-family:'Poppins', system-ui, -apple-system, sans-serif;
+  background:#fffdf6;
+  display:flex;
+  justify-content:center;
+}
+
+.page{
+  width:100%;
+  max-width:380px;
+  padding:20px 18px 32px;
+}
+
+/* HEADER */
+.header{
+  display:flex;
+  align-items:center;
+  gap:12px;
+  margin-bottom:20px;
+}
+
+.back-btn{
+  border:none;
+  background:#e5e7eb;
+  border-radius:12px;
+  padding:8px 12px;
+  font-size:14px;
+  cursor:pointer;
+}
+
+.header h1{
+  font-size:18px;
+  margin:0;
+  font-weight:700;
+  color:#2f3a5a;
+}
+
+/* PAKET KART */
+.card{
+  background:#fff;
+  border-radius:18px;
+  padding:16px;
+  box-shadow:0 8px 18px rgba(0,0,0,.12);
+  margin-bottom:16px;
+}
+
+.card h3{
+  margin:0 0 8px;
+  font-size:15px;
+  color:#2f3a5a;
+}
+
+.meta{
+  font-size:13px;
+  color:#374151;
+  line-height:1.5;
+  margin-bottom:12px;
+}
+
+.card button{
+  width:100%;
+  border:none;
+  border-radius:12px;
+  padding:10px;
+  font-size:14px;
+  font-weight:600;
+  cursor:pointer;
+  background:#e0e7ff;
+  color:#3730a3;
+}
+</style>
+</head>
+
+<body>
+
+<div class="page">
+
+  <div class="header">
+    <button class="back-btn" onclick="history.back()">⬅ Geri</button>
+    <h1>Lisans Kodları</h1>
+  </div>
+
+  <div id="packages"></div>
+
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import {
+  getFirestore,
+  collection,
+  getDocs,
+  query,
+  where,
+  doc,
+  getDoc
+} from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+/* FIREBASE */
+const firebaseConfig = {
+  apiKey: "AIzaSyBNgFdfhoV5SXx9BAVkFdIen1ckPidaj-Q",
+  authDomain: "semoapp-38259.firebaseapp.com",
+  projectId: "semoapp-38259",
+  storageBucket: "semoapp-38259.firebasestorage.app",
+  messagingSenderId: "877067367084",
+  appId: "1:877067367084:web:d826c6e7a80d77e58e2509"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+const container = document.getElementById("packages");
+
+/* PAKETLERİ YÜKLE */
+async function loadPackages(){
+  const pkgSnap = await getDocs(collection(db, "licensePackages"));
+  if(pkgSnap.empty){
+    container.innerHTML = "<p>Henüz paket yok</p>";
+    return;
+  }
+
+  for(const pkg of pkgSnap.docs){
+    const pkgData = pkg.data();
+
+    const licSnap = await getDocs(
+      query(
+        collection(db, "licenses"),
+        where("packageId", "==", pkg.id)
+      )
+    );
+
+    const total = licSnap.size;
+    const activeCount = licSnap.docs.filter(d => d.data().active).length;
+
+    const card = document.createElement("div");
+    card.className = "card";
+
+    card.innerHTML = `
+      <h3>📦 ${pkgData.title}</h3>
+      <div class="meta">
+        Aktif: ${activeCount} / ${total}<br>
+        Süre: ${pkgData.durationDays} gün<br>
+        Cihaz Limiti: ${pkgData.deviceLimit}
+      </div>
+      <button
+  ${total === 0 ? "disabled style='opacity:.5;cursor:not-allowed'" : ""}
+  onclick="${total === 0 ? "" : `openPackage('${pkg.id}')`}">
+  Detayları Gör
+</button>
+
+<button style="margin-top:8px;background:#fde68a;color:#92400e"
+  onclick="downloadPackagePDF('${pkg.id}')">
+  📄 PDF İndir
+</button>
+    `;
+
+    container.appendChild(card);
+  }
+}
+
+loadPackages();
+
+/* DETAY */
+window.openPackage = function(packageId){
+  location.href = "package-details.html?pkg=" + packageId;
+};
+
+window.downloadPackagePDF = async function(packageId){
+  
+
+if(!window.jspdf || !window.jspdf.jsPDF){
+  alert("PDF kütüphanesi yüklenmedi. Sayfayı yenileyip tekrar dene.");
+  return;
+}
+
+  const { jsPDF } = window.jspdf;
+  const pdf = new jsPDF();
+
+  const pkgSnap = await getDoc(doc(db, "licensePackages", packageId));
+  if(!pkgSnap.exists()) return;
+
+  const pkg = pkgSnap.data();
+
+  const licSnap = await getDocs(
+    query(
+      collection(db, "licenses"),
+      where("packageId", "==", packageId)
+    )
+  );
+
+  pdf.setFontSize(14);
+  pdf.text("SemoApp Lisans Kodları", 20, 20);
+
+  pdf.setFontSize(11);
+  pdf.text(`Paket: ${pkg.title}`, 20, 32);
+  pdf.text(`Süre: ${pkg.durationDays} gün`, 20, 40);
+  pdf.text(`Cihaz Limiti: ${pkg.deviceLimit}`, 20, 48);
+
+  let y = 62;
+  licSnap.docs.forEach(d => {
+    pdf.text(d.id, 20, y);
+    y += 8;
+  });
+
+  pdf.save("semoapp-lisans-kodlari.pdf");
+};
+
+</script>
+
+</body>
+</html>
