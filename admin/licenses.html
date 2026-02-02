@@ -212,11 +212,19 @@ if(!window.jspdf || !window.jspdf.jsPDF){
   pdf.text(`Süre: ${pkg.durationDays} gün`, 20, 40);
   pdf.text(`Cihaz Limiti: ${pkg.deviceLimit}`, 20, 48);
 
-  let y = 62;
-  licSnap.docs.forEach(d => {
-    pdf.text(d.id, 20, y);
-    y += 8;
-  });
+ let y = 62;
+const pageHeight = pdf.internal.pageSize.height;
+
+licSnap.docs.forEach((d, index) => {
+  // Sayfa dolduysa yeni sayfa
+  if (y > pageHeight - 20) {
+    pdf.addPage();
+    y = 20;
+  }
+
+  pdf.text(d.id, 20, y);
+  y += 8;
+});
 
   pdf.save("semoapp-lisans-kodlari.pdf");
 };
@@ -225,4 +233,5 @@ if(!window.jspdf || !window.jspdf.jsPDF){
 
 </body>
 </html>
+
 
