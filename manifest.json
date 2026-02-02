@@ -1,7 +1,7 @@
 {
   "name": "Semo App",
   "short_name": "Semo",
-  "start_url": ".",
+ "start_url": "/SemoApp/app.html"
   "display": "standalone",
   "background_color": "#ffffff",
   "theme_color": "#ffffff",
@@ -19,3 +19,4 @@
   ]
 
 }
+
