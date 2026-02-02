@@ -25,6 +25,16 @@ button{background:#d4a441;color:white;font-weight:bold;}
 </style>
 </head>
 
+  <script>
+  const licensed = localStorage.getItem("licensed");
+  const licenseCode = localStorage.getItem("licenseCode");
+  const deviceId = localStorage.getItem("deviceId");
+
+  if (licensed === "true" && licenseCode && deviceId) {
+    window.location.replace("app.html");
+  }
+</script>
+
 <body>
 <div id="loginScreen" style="
   display:none;
@@ -212,6 +222,7 @@ window.checkLicense = async function(){
 
 </body>
 </html>
+
 
 
 
