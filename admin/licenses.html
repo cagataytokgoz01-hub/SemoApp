@@ -128,6 +128,7 @@ const container = document.getElementById("packages");
 
 /* PAKETLERİ YÜKLE */
 async function loadPackages(){
+  container.innerHTML = "";
   const pkgSnap = await getDocs(collection(db, "licensePackages"));
   if(pkgSnap.empty){
     container.innerHTML = "<p>Henüz paket yok</p>";
@@ -224,3 +225,4 @@ if(!window.jspdf || !window.jspdf.jsPDF){
 
 </body>
 </html>
+
