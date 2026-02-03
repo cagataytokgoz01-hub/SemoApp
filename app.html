@@ -1101,6 +1101,20 @@ button.danger{
   transform: scale(.98);
 }
 
+  .splash-credit{
+  position: absolute;
+  bottom: calc(16px + env(safe-area-inset-bottom));
+  left: 0;
+  right: 0;
+  text-align: center;
+}
+
+.splash-credit img{
+  height: 28px;          /* ideal imza boyu */
+  width: auto;
+  opacity: 0.75;         /* çok bağırmasın */
+}
+
 </style>
 </head>
 
@@ -1116,7 +1130,7 @@ button.danger{
 <div id="splash">
   <img src="images/logo.png">
  <div class="splash-credit">
-  from <span class="credit-name">Çağatay Tokgöz</span>
+  <img src="images/signature.png" alt="Çağatay Tokgöz imza">
 </div>
 </div>
 
@@ -1516,6 +1530,7 @@ if (!snap.exists() || snap.data().activeDevice !== deviceId) {
 
 </body>
 </html>
+
 
 
 
