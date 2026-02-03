@@ -54,9 +54,14 @@ body {
 }
 
 .splash-credit{
-  margin-top:14px;
-  font-size:14px;
-  color:rgba(90,58,46,0.6);
+  position: absolute;
+  bottom: calc(16px + env(safe-area-inset-bottom)); /* iPhone çentik fix */
+  left: 0;
+  right: 0;
+
+  text-align: center;
+  font-size: 13px;
+  color: rgba(90,58,46,0.55);
   font-family: 'Poppins', sans-serif;
 }
 
@@ -1511,6 +1516,7 @@ if (!snap.exists() || snap.data().activeDevice !== deviceId) {
 
 </body>
 </html>
+
 
 
 
