@@ -158,26 +158,9 @@ let soundOn=true;
 const bead=document.getElementById("bead");
 const introAudio=document.getElementById("introAudio");
 
-let tickInterval=null;
-
-const tickSound=new Audio("https://cdn.pixabay.com/download/audio/2022/03/15/audio_0a90a5536e.mp3");
-const upSound=new Audio("https://cdn.pixabay.com/download/audio/2022/03/15/audio_c0d4740a19.mp3");
-const downSound=new Audio("https://cdn.pixabay.com/download/audio/2022/03/15/audio_687fb03e15.mp3");
-
-function startTicks(){
-  tickInterval=setInterval(()=>{
-    if(soundOn){
-      tickSound.currentTime=0;
-      tickSound.play();
-    }
-  },1000);
-}
-function stopTicks(){ clearInterval(tickInterval); }
-
 function startAnimation(){
   if(running) return;
   running=true;
-  startTicks();
   function cycle(){
     bead.style.transition="top 4s linear";
     bead.style.top="20px";
@@ -223,4 +206,5 @@ document.getElementById("stopBtn").addEventListener("click", stopAnimation);
 
 </body>
 </html>
+
 
