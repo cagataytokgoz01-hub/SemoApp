@@ -1543,19 +1543,12 @@ if (!snap.exists() || snap.data().activeDevice !== deviceId) {
   alert("Bu lisans başka bir cihazda açıldı.");
   window.location.replace("/SemoApp/index.html");
 }
-      import { getAnalytics, logEvent } from
-  "https://www.gstatic.com/firebasejs/10.12.0/firebase-analytics.js";
-
-const analytics = getAnalytics(app);
-
-// 🔥 uygulama açıldı eventi
-logEvent(analytics, "app_open");
-
 </script>
 
 
 </body>
 </html>
+
 
 
 
